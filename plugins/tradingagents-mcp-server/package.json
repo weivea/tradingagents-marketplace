@@ -1,0 +1,21 @@
+{
+  "name": "tradingagents-mcp-server",
+  "version": "0.1.0",
+  "description": "MCP server providing financial data tools for TradingAgents",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "technicalindicators": "^3.1.0",
+    "yahoo-finance2": "^1.14.8",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0"
+  }
+}
