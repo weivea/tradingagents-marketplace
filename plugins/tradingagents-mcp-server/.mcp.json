@@ -3,7 +3,8 @@
     "tradingagents-data": {
       "type": "stdio",
       "command": "node",
-      "args": ["./dist/index.js"]
+      "args": ["./plugins/tradingagents-mcp-server/dist/index.js"],
+      "env": {}
     }
   }
 }
