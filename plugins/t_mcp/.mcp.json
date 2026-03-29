@@ -1,9 +1,9 @@
 {
   "mcpServers": {
-    "tradingagents-data": {
+    "ta": {
       "type": "stdio",
       "command": "node",
-      "args": ["./plugins/tradingagents-mcp-server/dist/index.js"],
+      "args": ["./plugins/t_mcp/dist/index.js"],
       "env": {}
     }
   }

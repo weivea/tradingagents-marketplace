@@ -1,5 +1,5 @@
 {
-  "name": "tradingagents-marketplace",
+  "name": "tradingagents",
   "metadata": {
     "description": "TradingAgents multi-agent LLM financial trading framework plugin marketplace"
   },
@@ -13,9 +13,9 @@
       "source": "./"
     },
     {
-      "name": "tradingagents-mcp-server",
+      "name": "t_mcp",
       "description": "MCP server providing 9 financial data tools (stock data, technical indicators, fundamentals, news) for TradingAgents",
-      "source": "./plugins/tradingagents-mcp-server"
+      "source": "./plugins/t_mcp"
     }
   ]
 }

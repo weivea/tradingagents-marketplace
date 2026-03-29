@@ -1,5 +1,5 @@
 {
-  "name": "tradingagents-mcp-server",
+  "name": "t_mcp",
   "description": "MCP server providing 9 financial data tools (stock data, technical indicators, fundamentals, news) for the TradingAgents trading analysis framework",
   "version": "0.1.0",
   "author": {

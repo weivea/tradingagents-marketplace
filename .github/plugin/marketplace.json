@@ -1,5 +1,5 @@
 {
-  "name": "tradingagents-marketplace",
+  "name": "tradingagents",
   "owner": {
     "name": "TauricResearch"
   },
@@ -10,9 +10,9 @@
       "source": "./"
     },
     {
-      "name": "tradingagents-mcp-server",
+      "name": "t_mcp",
       "description": "MCP server providing 9 financial data tools (stock data, technical indicators, fundamentals, news) for TradingAgents",
-      "source": "./plugins/tradingagents-mcp-server"
+      "source": "./plugins/t_mcp"
     }
   ]
 }

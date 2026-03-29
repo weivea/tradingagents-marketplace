@@ -9,7 +9,7 @@ A Claude Code / Copilot CLI plugin that brings the [TradingAgents](https://githu
 ### 1. Build the MCP Server
 
 ```bash
-cd tradingagents-marketplace/plugins/tradingagents-mcp-server
+cd tradingagents/plugins/t_mcp
 npm install
 npm run build
 ```
@@ -21,16 +21,16 @@ The project includes `.claude/settings.json` with everything preconfigured:
 ```json
 {
   "extraKnownMarketplaces": {
-    "tradingagents-marketplace": {
+    "tradingagents": {
       "source": {
         "source": "directory",
-        "path": "./tradingagents-marketplace"
+        "path": "./tradingagents"
       }
     }
   },
   "enabledPlugins": {
-    "tradingagents@tradingagents-marketplace": true,
-    "tradingagents-mcp-server@tradingagents-marketplace": true
+    "tradingagents@tradingagents": true,
+    "t_mcp@tradingagents": true
   }
 }
 ```
@@ -40,24 +40,24 @@ The project includes `.claude/settings.json` with everything preconfigured:
 Option A — **启动参数 `--plugin-dir`**（推荐，无需全局安装）:
 
 ```bash
-copilot --plugin-dir ./tradingagents-marketplace --plugin-dir ./tradingagents-marketplace/plugins/tradingagents-mcp-server
+copilot --plugin-dir ./tradingagents --plugin-dir ./tradingagents/plugins/t_mcp
 ```
 
 Option B — **全局安装**:
 
 ```bash
 # Register the local marketplace
-copilot plugin marketplace add ./tradingagents-marketplace
+copilot plugin marketplace add ./tradingagents
 
 # Install both plugins
-copilot plugin install tradingagents@tradingagents-marketplace
-copilot plugin install tradingagents-mcp-server@tradingagents-marketplace
+copilot plugin install tradingagents@tradingagents
+copilot plugin install t_mcp@tradingagents
 ```
 
 ### Plugin Components
 
 - **`tradingagents`** — 9 skills + 12 agents for the analysis pipeline
-- **`tradingagents-mcp-server`** — MCP server with 9 financial data tools
+- **`t_mcp`** — MCP server with 9 financial data tools
 
 The MCP server declares itself via `.mcp.json` inside the plugin directory — no manual `mcpServers` configuration needed.
 

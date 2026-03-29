@@ -1,5 +1,5 @@
 {
-  "name": "tradingagents-mcp-server",
+  "name": "t_mcp",
   "version": "0.1.0",
   "description": "MCP server providing financial data tools for TradingAgents",
   "type": "module",
