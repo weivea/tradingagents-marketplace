@@ -170,12 +170,24 @@ def _parse_table(lines: list[str]) -> list[list[str]]:
 def _extract_key_sections(sections: list[dict], rating: str) -> list[dict]:
     """Extract core sections for the short video version.
 
-    Selects: rating, top 3 investment arguments, conclusion.
+    Selects: title+disclaimer, rating, top 3 investment arguments, conclusion.
     Target: 250-400 Chinese characters total.
     """
     key: list[dict] = []
 
-    # 1. Rating card
+    # 1. Title (first section of type "title")
+    for s in sections:
+        if s["type"] == "title":
+            key.append(s)
+            break
+
+    # 2. Disclaimer (first paragraph containing "免责声明")
+    for s in sections:
+        if s["type"] == "paragraph" and "免责声明" in s["text"]:
+            key.append(s)
+            break
+
+    # 3. Rating card
     for s in sections:
         if s["type"] == "rating_card":
             key.append(s)
