@@ -56,8 +56,9 @@ copilot plugin install t_mcp@ta
 
 ### Plugin Components
 
-- **`ta`** — 9 skills + 12 agents for the analysis pipeline
+- **`ta`** — 10 skills + 13 agents for the analysis pipeline
 - **`t_mcp`** — MCP server with 9 financial data tools
+- **`gv`** — MCP server with 5 video generation tools + Python CLI
 
 The MCP server declares itself via `.mcp.json` inside the plugin directory — no manual `mcpServers` configuration needed.
 
@@ -118,7 +119,7 @@ Trading Analysis Skill (Master Orchestrator)
 
 ## Components
 
-### MCP Server (9 tools)
+### MCP Server — t_mcp (9 tools)
 
 | Tool | Description |
 |------|-------------|
@@ -132,7 +133,7 @@ Trading Analysis Skill (Master Orchestrator)
 | `get_global_news` | Global macroeconomic news |
 | `get_insider_transactions` | Insider trading activity |
 
-### Custom Agents (12)
+### Custom Agents (13)
 
 | Agent | Role |
 |-------|------|
@@ -148,8 +149,9 @@ Trading Analysis Skill (Master Orchestrator)
 | `risk-conservative` | Prioritizes asset protection |
 | `risk-neutral` | Balanced risk perspective |
 | `portfolio-manager` | Final decision maker |
+| `video-scriptwriter` | Extracts short-video narration scripts |
 
-### Skills (9)
+### Skills (10)
 
 | Skill | Description |
 |-------|-------------|
@@ -162,6 +164,39 @@ Trading Analysis Skill (Master Orchestrator)
 | `trading-decision` | Trader decision phase |
 | `risk-assessment` | 3-way risk debate |
 | `portfolio-decision` | Portfolio manager final decision |
+| `gen-video` | Convert analysis reports to narrated videos |
+
+### MCP Server — gv (5 tools)
+
+| Tool | Description |
+|------|-------------|
+| `parse_report` | Parse Chinese Markdown report into structured sections |
+| `generate_tts` | Chinese TTS audio + timestamps + SRT subtitles |
+| `render_frames` | Render text as scroll image or per-slide images |
+| `compose_video` | Compose MP4 from frames + audio |
+| `generate_video` | One-click report → video |
+
+## Gen-Video — Report to Video
+
+Convert Chinese analysis reports (`analysis/*_zh.md`) into narrated vertical videos for social media (抖音/B站/小红书).
+
+```
+为 NIO 报告生成视频
+```
+
+This produces two versions:
+
+- **Full version** (`*_full.mp4`) — 8-15 min, full-text narration with scrolling text
+- **Short version** (`*_short.mp4`) — 60-90s, AI-extracted key points with slide transitions
+
+Or use the CLI directly:
+
+```bash
+cd plugins/gv
+python -m python generate "../../analysis/NIO_2026-04-04_zh.md" --version both
+```
+
+Output lands in `gen-video/output/`. See [`plugins/gv/README.md`](plugins/gv/README.md) for full documentation.
 
 ## Credits
 
