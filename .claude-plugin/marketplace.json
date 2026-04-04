@@ -16,6 +16,11 @@
       "name": "t_mcp",
       "description": "MCP server providing 9 financial data tools (stock data, technical indicators, fundamentals, news) for TradingAgents",
       "source": "./plugins/t_mcp"
+    },
+    {
+      "name": "gv",
+      "description": "MCP server for generating narrated scrolling videos from Chinese analysis reports",
+      "source": "./plugins/gv"
     }
   ]
 }
