@@ -27,3 +27,6 @@ build/
 
 # Logs
 *.log
+
+# Generated analysis reports
+analysis/
