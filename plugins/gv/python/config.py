@@ -9,9 +9,9 @@ OUTPUT_DIR = PROJECT_ROOT / "gen-video" / "output"
 TEMP_DIR = PROJECT_ROOT / "gen-video" / "temp"
 
 # --- Video ---
-WIDTH = 1080
-HEIGHT = 1920
-FPS = 30
+WIDTH = 720
+HEIGHT = 1280
+FPS = 24
 CODEC = "libx264"
 
 # --- Colors (RGB tuples) ---
@@ -23,22 +23,22 @@ RATING_SELL_COLOR = (255, 68, 68) # #ff4444 red
 RATING_BUY_COLOR = (74, 222, 128) # #4ade80 green
 HIGHLIGHT_BG = (100, 108, 255, 20)  # accent with low alpha
 
-# --- Typography ---
+# --- Typography (scaled for 720p) ---
 FONT_REGULAR = "msyh.ttc"   # 微软雅黑 (Windows), fallback to Noto Sans CJK SC
 FONT_BOLD = "msyhbd.ttc"    # 微软雅黑 Bold
-FONT_SIZE_BODY = 28
-FONT_SIZE_H1 = 48
-FONT_SIZE_H2 = 36
-FONT_SIZE_H3 = 32
-FONT_SIZE_SMALL = 22
+FONT_SIZE_BODY = 19
+FONT_SIZE_H1 = 32
+FONT_SIZE_H2 = 24
+FONT_SIZE_H3 = 21
+FONT_SIZE_SMALL = 15
 LINE_HEIGHT_MULTIPLIER = 1.8
-MARGIN_X = 60
+MARGIN_X = 40
 
-# --- Layout zones (full version) ---
-HEADER_HEIGHT = 120
-RATING_CARD_HEIGHT = 100
-PROGRESS_BAR_HEIGHT = 40
-SCROLL_AREA_HEIGHT = HEIGHT - HEADER_HEIGHT - RATING_CARD_HEIGHT - PROGRESS_BAR_HEIGHT  # 1660px
+# --- Layout zones (full version, scaled for 720p) ---
+HEADER_HEIGHT = 80
+RATING_CARD_HEIGHT = 67
+PROGRESS_BAR_HEIGHT = 27
+SCROLL_AREA_HEIGHT = HEIGHT - HEADER_HEIGHT - RATING_CARD_HEIGHT - PROGRESS_BAR_HEIGHT  # 1106px
 
 # --- TTS ---
 TTS_VOICE = "zh-CN-YunyangNeural"

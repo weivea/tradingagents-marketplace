@@ -202,8 +202,8 @@ def _render_full(sections: list[dict], out: Path) -> dict:
 def _render_short(sections: list[dict], out: Path) -> dict:
     """Render one 1080x1920 image per section for the short version."""
     image_paths: list[str] = []
-    font_big = _load_font(bold=True, size=42)
-    font_body = _load_font(bold=False, size=32)
+    font_big = _load_font(bold=True, size=28)
+    font_body = _load_font(bold=False, size=21)
     font_label = _load_font(bold=False, size=FONT_SIZE_SMALL)
 
     for idx, section in enumerate(sections):
@@ -240,15 +240,15 @@ def _render_short(sections: list[dict], out: Path) -> dict:
                 draw.text(((WIDTH - lw) // 2, start_y + li * line_h), line, font=font_body, fill=TEXT_COLOR)
 
         # Progress dots at bottom
-        dot_y = HEIGHT - 120
+        dot_y = HEIGHT - 80
         total_dots = len(sections)
-        dot_spacing = 24
+        dot_spacing = 16
         dots_width = total_dots * dot_spacing
         dot_start_x = (WIDTH - dots_width) // 2
         for di in range(total_dots):
-            cx = dot_start_x + di * dot_spacing + 6
+            cx = dot_start_x + di * dot_spacing + 4
             fill = ACCENT_COLOR if di <= idx else (50, 55, 80)
-            draw.ellipse([(cx, dot_y), (cx + 12, dot_y + 12)], fill=fill)
+            draw.ellipse([(cx, dot_y), (cx + 8, dot_y + 8)], fill=fill)
 
         path = out / f"slide_{idx:02d}.png"
         img.save(str(path), "PNG")

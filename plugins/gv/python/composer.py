@@ -144,7 +144,7 @@ def _compose_full(
         bar_img = np.full((PROGRESS_BAR_HEIGHT, WIDTH, 3), BG_COLOR, dtype=np.uint8)
         progress = t / duration if duration > 0 else 0
         bar_width = int(WIDTH * progress)
-        bar_img[15:18, 0:bar_width] = ACCENT_COLOR
+        bar_img[10:12, 0:bar_width] = ACCENT_COLOR
         return bar_img
 
     progress_clip = VideoClip(make_progress_frame, duration=duration).with_position((0, HEIGHT - PROGRESS_BAR_HEIGHT))
