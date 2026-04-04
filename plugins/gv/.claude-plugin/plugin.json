@@ -1,0 +1,8 @@
+{
+  "name": "gv",
+  "description": "Video generation plugin — converts Chinese trading analysis reports into narrated scrolling videos with TTS and synchronized text animation",
+  "version": "0.1.0",
+  "author": {
+    "name": "TauricResearch"
+  }
+}

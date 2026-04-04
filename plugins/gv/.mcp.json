@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "gv": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["./plugins/gv/dist/index.js"],
+      "env": {}
+    }
+  }
+}
