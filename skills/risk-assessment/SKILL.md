@@ -20,17 +20,17 @@ After the Trader makes a decision, when you need risk assessment before the fina
 
 For each round, cycle through sequentially:
 
-1. **Dispatch Aggressive Analyst** sub-agent (use `tradingagents:risk-aggressive` agent) with:
+1. **Dispatch Aggressive Analyst** sub-agent (use `ta:risk-aggressive` agent) with:
    - Trader's decision, all analyst reports
    - Debate history, last conservative & neutral responses
    - Instruction to start with `**Aggressive Analyst:**`
 
-2. **Dispatch Conservative Analyst** sub-agent (use `tradingagents:risk-conservative` agent) with:
+2. **Dispatch Conservative Analyst** sub-agent (use `ta:risk-conservative` agent) with:
    - Trader's decision, all analyst reports
    - Debate history, last aggressive & neutral responses
    - Instruction to start with `**Conservative Analyst:**`
 
-3. **Dispatch Neutral Analyst** sub-agent (use `tradingagents:risk-neutral` agent) with:
+3. **Dispatch Neutral Analyst** sub-agent (use `ta:risk-neutral` agent) with:
    - Trader's decision, all analyst reports
    - Debate history, last aggressive & conservative responses
    - Instruction to start with `**Neutral Analyst:**`

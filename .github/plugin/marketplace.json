@@ -1,11 +1,11 @@
 {
-  "name": "tradingagents",
+  "name": "ta",
   "owner": {
     "name": "TauricResearch"
   },
   "plugins": [
     {
-      "name": "tradingagents",
+      "name": "ta",
       "description": "TradingAgents: Multi-agent LLM financial trading framework — analysts, researchers, risk team & portfolio manager collaborate to make trading decisions",
       "source": "./"
     },

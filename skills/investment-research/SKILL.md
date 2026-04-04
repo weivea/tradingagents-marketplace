@@ -25,13 +25,13 @@ You must already have the 4 analyst reports:
 
 For each debate round:
 
-1. **Dispatch Bull Researcher** sub-agent (use `tradingagents:bull-researcher` agent) with:
+1. **Dispatch Bull Researcher** sub-agent (use `ta:bull-researcher` agent) with:
    - All 4 analyst reports
    - Debate history so far
    - Last bear argument (if any)
    - Instruction to start response with `**Bull Analyst:**`
 
-2. **Dispatch Bear Researcher** sub-agent (use `tradingagents:bear-researcher` agent) with:
+2. **Dispatch Bear Researcher** sub-agent (use `ta:bear-researcher` agent) with:
    - All 4 analyst reports
    - Debate history so far
    - Last bull argument
@@ -41,7 +41,7 @@ Accumulate the debate history after each turn.
 
 ### Research Manager Decision
 
-After all debate rounds, dispatch the **Research Manager** sub-agent (use `tradingagents:research-manager` agent) with:
+After all debate rounds, dispatch the **Research Manager** sub-agent (use `ta:research-manager` agent) with:
 - Full debate history
 - All 4 analyst reports
 - Instruction to commit to Buy/Sell/Hold with rationale and strategic actions

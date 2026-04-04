@@ -1,6 +1,6 @@
 ---
 name: fundamentals-analysis
-description: Perform fundamental analysis on a company — financials, valuation, balance sheet. Requires the tradingagents-data MCP server.
+description: Perform fundamental analysis on a company — financials, valuation, balance sheet. Requires the ta MCP server.
 ---
 
 # Fundamentals Analysis
@@ -18,7 +18,7 @@ When the user asks about company financials, valuation, balance sheet health, or
 
 ## Execution
 
-Dispatch a **general-purpose** sub-agent with the `tradingagents:fundamentals-analyst` agent prompt. The sub-agent should:
+Dispatch a **general-purpose** sub-agent with the `ta:fundamentals-analyst` agent prompt. The sub-agent should:
 
 1. Call `get_fundamentals(ticker=TICKER)` for company overview
 2. Call `get_balance_sheet(ticker=TICKER)` for balance sheet

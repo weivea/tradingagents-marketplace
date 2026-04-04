@@ -1,6 +1,6 @@
 ---
 name: trading-analysis
-description: Run the full TradingAgents multi-agent trading analysis pipeline. Orchestrates analysts, researchers, trader, risk team, and portfolio manager to produce a final trading decision. Requires the tradingagents-data MCP server.
+description: Run the full TradingAgents multi-agent trading analysis pipeline. Orchestrates analysts, researchers, trader, risk team, and portfolio manager to produce a final trading decision. Requires the ta MCP server.
 ---
 
 # TradingAgents — Full Analysis Pipeline
@@ -80,7 +80,7 @@ Dispatch **4 sub-agents in parallel** using the Task tool with `mode="background
 Prompt the sub-agent with:
 > You are a Market/Technical Analyst. Analyze {TICKER} as of {DATE}.
 >
-> Use MCP tools from tradingagents-data:
+> Use MCP tools from ta:
 > 1. Call `get_stock_data(symbol="{TICKER}", start_date="{30_DAYS_BEFORE}", end_date="{DATE}")` to get OHLCV data
 > 2. Select up to 8 complementary technical indicators from: close_50_sma, close_200_sma, close_10_ema, macd, macds, macdh, rsi, boll, boll_ub, boll_lb, atr, vwma
 > 3. Call `get_indicators` for each selected indicator
@@ -92,7 +92,7 @@ Prompt the sub-agent with:
 Prompt the sub-agent with:
 > You are a Social Media & Sentiment Analyst. Analyze sentiment for {TICKER} as of {DATE}.
 >
-> Use MCP tools from tradingagents-data:
+> Use MCP tools from ta:
 > 1. Call `get_news(ticker="{TICKER}", start_date="{7_DAYS_BEFORE}", end_date="{DATE}")` for company news
 > 2. Analyze sentiment from the articles — identify positive/negative/neutral signals
 > 3. Write a comprehensive sentiment report with overall assessment and a Markdown summary table
@@ -103,7 +103,7 @@ Prompt the sub-agent with:
 Prompt the sub-agent with:
 > You are a News Analyst. Analyze news for {TICKER} as of {DATE}.
 >
-> Use MCP tools from tradingagents-data:
+> Use MCP tools from ta:
 > 1. Call `get_news(ticker="{TICKER}", start_date="{7_DAYS_BEFORE}", end_date="{DATE}")` for company news
 > 2. Call `get_global_news(curr_date="{DATE}", look_back_days=7, limit=10)` for macroeconomic news
 > 3. Call `get_insider_transactions(ticker="{TICKER}")` for insider activity
@@ -115,7 +115,7 @@ Prompt the sub-agent with:
 Prompt the sub-agent with:
 > You are a Fundamentals Analyst. Analyze {TICKER}.
 >
-> Use MCP tools from tradingagents-data:
+> Use MCP tools from ta:
 > 1. Call `get_fundamentals(ticker="{TICKER}")` for company overview and key statistics
 > 2. Call `get_balance_sheet(ticker="{TICKER}")` for balance sheet data
 > 3. Call `get_cashflow(ticker="{TICKER}")` for cash flow statement
@@ -299,7 +299,7 @@ Present the complete result to the user:
 
 ## Important Notes
 
-- All sub-agents should use the MCP tools from the `tradingagents-data` server
+- All sub-agents should use the MCP tools from the `ta` MCP server
 - The 4 analyst sub-agents run in **parallel** for speed
 - All debate phases run **sequentially** (each response depends on the previous)
 - This is for research purposes only — not financial advice

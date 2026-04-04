@@ -19,7 +19,7 @@ After the risk debate completes, as the final step of the trading analysis pipel
 
 ## Execution
 
-Dispatch the **Portfolio Manager** sub-agent (use `tradingagents:portfolio-manager` agent) with:
+Dispatch the **Portfolio Manager** sub-agent (use `ta:portfolio-manager` agent) with:
 - Risk debate history
 - Trader's plan
 - All analyst reports

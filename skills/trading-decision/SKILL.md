@@ -18,7 +18,7 @@ After the Research Manager produces an investment plan, when you need the Trader
 
 ## Execution
 
-Dispatch the **Trader** sub-agent (use `tradingagents:trader` agent) with:
+Dispatch the **Trader** sub-agent (use `ta:trader` agent) with:
 - Investment plan
 - Market, sentiment, news, fundamentals reports
 - Instruction to end with `FINAL TRANSACTION PROPOSAL: **BUY/HOLD/SELL**`

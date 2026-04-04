@@ -1,5 +1,5 @@
 {
-  "name": "tradingagents",
+  "name": "ta",
   "description": "TradingAgents: Multi-agent LLM financial trading framework — analysts, researchers, risk team & portfolio manager collaborate to make trading decisions",
   "version": "0.1.0",
   "author": {

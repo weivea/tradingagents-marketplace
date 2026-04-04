@@ -1,4 +1,5 @@
-import yahooFinance from "yahoo-finance2";
+import YahooFinance from "yahoo-finance2";
+const yahooFinance = new YahooFinance();
 
 export interface FundamentalsParams {
   ticker: string;
@@ -66,7 +67,7 @@ export async function getFundamentals(params: FundamentalsParams): Promise<strin
         `- **PEG Ratio**: ${stats.pegRatio ?? "N/A"}\n` +
         `- **Price to Book**: ${stats.priceToBook ?? "N/A"}\n` +
         `- **Beta**: ${stats.beta ?? "N/A"}\n` +
-        `- **Shares Outstanding**: ${formatNum(stats.sharesOutstanding)}`
+        `- **Shares Outstanding**: ${formatCount(stats.sharesOutstanding)}`
       );
     }
 
@@ -79,25 +80,37 @@ export async function getFundamentals(params: FundamentalsParams): Promise<strin
 export async function getBalanceSheet(params: FinancialStatementParams): Promise<string> {
   const { ticker, freq = "quarterly" } = params;
   try {
-    const modules: any[] = freq === "quarterly" ? ["balanceSheetHistoryQuarterly"] : ["balanceSheetHistory"];
-    const quote = await yahooFinance.quoteSummary(ticker, { modules });
-    const statements: any[] | undefined = freq === "quarterly"
-      ? quote.balanceSheetHistoryQuarterly?.balanceSheetStatements
-      : quote.balanceSheetHistory?.balanceSheetStatements;
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setFullYear(startDate.getFullYear() - 2);
+
+    const statements = await yahooFinance.fundamentalsTimeSeries(ticker, {
+      period1: startDate.toISOString().split("T")[0],
+      period2: endDate.toISOString().split("T")[0],
+      type: freq === "quarterly" ? "quarterly" : "annual",
+      module: "balance-sheet",
+    });
 
     if (!statements || statements.length === 0) {
       return `No balance sheet data found for ${ticker}.`;
     }
 
     const rows = statements.map((s: any) => {
-      return `### ${s.endDate?.toISOString().split("T")[0] ?? "N/A"}\n` +
+      const date = s.date ? new Date(s.date).toISOString().split("T")[0] : "N/A";
+      return `### ${date}\n` +
         `- Total Assets: ${formatNum(s.totalAssets)}\n` +
-        `- Total Liabilities: ${formatNum(s.totalLiab)}\n` +
-        `- Total Stockholder Equity: ${formatNum(s.totalStockholderEquity)}\n` +
-        `- Cash: ${formatNum(s.cash)}\n` +
-        `- Short Term Investments: ${formatNum(s.shortTermInvestments)}\n` +
-        `- Net Receivables: ${formatNum(s.netReceivables)}\n` +
-        `- Long Term Debt: ${formatNum(s.longTermDebt)}`;
+        `- Total Liabilities: ${formatNum(s.totalLiabilitiesNetMinorityInterest)}\n` +
+        `- Stockholders Equity: ${formatNum(s.stockholdersEquity)}\n` +
+        `- Cash & Equivalents: ${formatNum(s.cashAndCashEquivalents)}\n` +
+        `- Short Term Investments: ${formatNum(s.otherShortTermInvestments)}\n` +
+        `- Receivables: ${formatNum(s.receivables)}\n` +
+        `- Inventory: ${formatNum(s.inventory)}\n` +
+        `- Current Assets: ${formatNum(s.currentAssets)}\n` +
+        `- Current Liabilities: ${formatNum(s.currentLiabilities)}\n` +
+        `- Long Term Debt: ${formatNum(s.longTermDebt)}\n` +
+        `- Total Debt: ${formatNum(s.totalDebt)}\n` +
+        `- Net Debt: ${formatNum(s.netDebt)}\n` +
+        `- Working Capital: ${formatNum(s.workingCapital)}`;
     });
 
     return `# Balance Sheet for ${ticker} (${freq})\n\n${rows.join("\n\n")}`;
@@ -109,24 +122,32 @@ export async function getBalanceSheet(params: FinancialStatementParams): Promise
 export async function getCashflow(params: FinancialStatementParams): Promise<string> {
   const { ticker, freq = "quarterly" } = params;
   try {
-    const modules: any[] = freq === "quarterly" ? ["cashflowStatementHistoryQuarterly"] : ["cashflowStatementHistory"];
-    const quote = await yahooFinance.quoteSummary(ticker, { modules });
-    const statements: any[] | undefined = freq === "quarterly"
-      ? quote.cashflowStatementHistoryQuarterly?.cashflowStatements
-      : quote.cashflowStatementHistory?.cashflowStatements;
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setFullYear(startDate.getFullYear() - 2);
+
+    const statements = await yahooFinance.fundamentalsTimeSeries(ticker, {
+      period1: startDate.toISOString().split("T")[0],
+      period2: endDate.toISOString().split("T")[0],
+      type: freq === "quarterly" ? "quarterly" : "annual",
+      module: "cash-flow",
+    });
 
     if (!statements || statements.length === 0) {
       return `No cashflow data found for ${ticker}.`;
     }
 
     const rows = statements.map((s: any) => {
-      return `### ${s.endDate?.toISOString().split("T")[0] ?? "N/A"}\n` +
-        `- Operating Cash Flow: ${formatNum(s.totalCashFromOperatingActivities)}\n` +
-        `- Capital Expenditures: ${formatNum(s.capitalExpenditures)}\n` +
-        `- Free Cash Flow: ${formatNum((s.totalCashFromOperatingActivities ?? 0) + (s.capitalExpenditures ?? 0))}\n` +
-        `- Investing Cash Flow: ${formatNum(s.totalCashflowsFromInvestingActivities)}\n` +
-        `- Financing Cash Flow: ${formatNum(s.totalCashFromFinancingActivities)}\n` +
-        `- Dividends Paid: ${formatNum(s.dividendsPaid)}`;
+      const date = s.date ? new Date(s.date).toISOString().split("T")[0] : "N/A";
+      return `### ${date}\n` +
+        `- Operating Cash Flow: ${formatNum(s.operatingCashFlow)}\n` +
+        `- Capital Expenditures: ${formatNum(s.capitalExpenditure)}\n` +
+        `- Free Cash Flow: ${formatNum(s.freeCashFlow)}\n` +
+        `- Investing Cash Flow: ${formatNum(s.investingCashFlow)}\n` +
+        `- Financing Cash Flow: ${formatNum(s.financingCashFlow)}\n` +
+        `- Dividends Paid: ${formatNum(s.cashDividendsPaid)}\n` +
+        `- Stock Repurchases: ${formatNum(s.repurchaseOfCapitalStock)}\n` +
+        `- Depreciation & Amortization: ${formatNum(s.depreciationAndAmortization)}`;
     });
 
     return `# Cash Flow Statement for ${ticker} (${freq})\n\n${rows.join("\n\n")}`;
@@ -138,24 +159,35 @@ export async function getCashflow(params: FinancialStatementParams): Promise<str
 export async function getIncomeStatement(params: FinancialStatementParams): Promise<string> {
   const { ticker, freq = "quarterly" } = params;
   try {
-    const modules: any[] = freq === "quarterly" ? ["incomeStatementHistoryQuarterly"] : ["incomeStatementHistory"];
-    const quote = await yahooFinance.quoteSummary(ticker, { modules });
-    const statements: any[] | undefined = freq === "quarterly"
-      ? quote.incomeStatementHistoryQuarterly?.incomeStatementHistory
-      : quote.incomeStatementHistory?.incomeStatementHistory;
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setFullYear(startDate.getFullYear() - 2);
+
+    const statements = await yahooFinance.fundamentalsTimeSeries(ticker, {
+      period1: startDate.toISOString().split("T")[0],
+      period2: endDate.toISOString().split("T")[0],
+      type: freq === "quarterly" ? "quarterly" : "annual",
+      module: "financials",
+    });
 
     if (!statements || statements.length === 0) {
       return `No income statement data found for ${ticker}.`;
     }
 
     const rows = statements.map((s: any) => {
-      return `### ${s.endDate?.toISOString().split("T")[0] ?? "N/A"}\n` +
+      const date = s.date ? new Date(s.date).toISOString().split("T")[0] : "N/A";
+      return `### ${date}\n` +
         `- Total Revenue: ${formatNum(s.totalRevenue)}\n` +
         `- Cost of Revenue: ${formatNum(s.costOfRevenue)}\n` +
         `- Gross Profit: ${formatNum(s.grossProfit)}\n` +
+        `- Operating Expense: ${formatNum(s.operatingExpense)}\n` +
         `- Operating Income: ${formatNum(s.operatingIncome)}\n` +
         `- Net Income: ${formatNum(s.netIncome)}\n` +
-        `- EBIT: ${formatNum(s.ebit)}`;
+        `- EBITDA: ${formatNum(s.EBITDA)}\n` +
+        `- EBIT: ${formatNum(s.EBIT)}\n` +
+        `- Diluted EPS: ${s.dilutedEPS ?? "N/A"}\n` +
+        `- R&D Expense: ${formatNum(s.researchAndDevelopment)}\n` +
+        `- SG&A Expense: ${formatNum(s.sellingGeneralAndAdministration)}`;
     });
 
     return `# Income Statement for ${ticker} (${freq})\n\n${rows.join("\n\n")}`;
@@ -170,6 +202,14 @@ function formatNum(val: number | null | undefined): string {
   if (Math.abs(val) >= 1e9) return `$${(val / 1e9).toFixed(2)}B`;
   if (Math.abs(val) >= 1e6) return `$${(val / 1e6).toFixed(2)}M`;
   return `$${val.toLocaleString()}`;
+}
+
+function formatCount(val: number | null | undefined): string {
+  if (val == null) return "N/A";
+  if (Math.abs(val) >= 1e9) return `${(val / 1e9).toFixed(2)}B`;
+  if (Math.abs(val) >= 1e6) return `${(val / 1e6).toFixed(2)}M`;
+  if (Math.abs(val) >= 1e3) return `${(val / 1e3).toFixed(2)}K`;
+  return val.toLocaleString();
 }
 
 function formatPct(val: number | null | undefined): string {

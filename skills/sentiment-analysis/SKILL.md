@@ -1,6 +1,6 @@
 ---
 name: sentiment-analysis
-description: Analyze social media sentiment and public opinion for a stock. Requires the tradingagents-data MCP server.
+description: Analyze social media sentiment and public opinion for a stock. Requires the ta MCP server.
 ---
 
 # Sentiment Analysis
@@ -18,7 +18,7 @@ When the user asks about sentiment, social media buzz, or public opinion for a s
 
 ## Execution
 
-Dispatch a **general-purpose** sub-agent with the `tradingagents:sentiment-analyst` agent prompt. The sub-agent should:
+Dispatch a **general-purpose** sub-agent with the `ta:sentiment-analyst` agent prompt. The sub-agent should:
 
 1. Call `get_news(ticker=TICKER, start_date=7_DAYS_BEFORE, end_date=DATE)` for company news
 2. Analyze sentiment signals from the articles

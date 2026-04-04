@@ -1,6 +1,6 @@
 ---
 name: news-analysis
-description: Analyze recent news, global events, and insider activity for a stock. Requires the tradingagents-data MCP server.
+description: Analyze recent news, global events, and insider activity for a stock. Requires the ta MCP server.
 ---
 
 # News Analysis
@@ -18,7 +18,7 @@ When the user asks about news impact, macro environment, or insider activity for
 
 ## Execution
 
-Dispatch a **general-purpose** sub-agent with the `tradingagents:news-analyst` agent prompt. The sub-agent should:
+Dispatch a **general-purpose** sub-agent with the `ta:news-analyst` agent prompt. The sub-agent should:
 
 1. Call `get_news(ticker=TICKER, start_date=7_DAYS_BEFORE, end_date=DATE)` for company news
 2. Call `get_global_news(curr_date=DATE, look_back_days=7, limit=10)` for macro news
