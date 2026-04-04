@@ -53,7 +53,7 @@ If version is "full" or "both":
 
 If version is "short" or "both":
 
-1. Dispatch **video-scriptwriter** agent with the full report text to extract a 60-90 second narration script (250-400 characters, 5-7 key points)
+1. Dispatch **video-scriptwriter** agent with the full report text to extract a 60-90 second narration script (250-400 characters, 7-9 sections: title → disclaimer → rating → 3 key points → conclusion)
 2. Call `generate_tts(text=<script_text>, output_dir="gen-video/temp/{TICKER}_{DATE}_short", rate="+5%")`
 3. Save script sections to temp JSON file
 4. Call `render_frames(sections_path=<temp_json>, layout="short", output_dir="gen-video/temp/{TICKER}_{DATE}_short_frames")`

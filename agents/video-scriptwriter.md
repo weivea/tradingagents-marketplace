@@ -17,8 +17,16 @@ Return a JSON array of sections. Each section becomes one video slide:
 ```json
 [
   {
+    "type": "title",
+    "text": "蔚来汽车（NIO）交易分析报告，2026年4月4日。"
+  },
+  {
+    "type": "disclaimer",
+    "text": "免责声明：本报告由AI生成，仅供研究参考，不构成任何投资建议。"
+  },
+  {
     "type": "rating",
-    "text": "蔚来汽车，最终评级：卖出。目标价4.80到5.20美元，下行17%到24%。"
+    "text": "最终评级：卖出。目标价4.80到5.20美元，下行17%到24%。"
   },
   {
     "type": "point",
@@ -42,11 +50,11 @@ Return a JSON array of sections. Each section becomes one video slide:
 ## Rules
 
 1. **Total length:** 250-400 Chinese characters (reads in ~60-90 seconds)
-2. **Structure:** Start with rating, then 3 key arguments, end with conclusion
-3. **Section count:** 5-7 sections maximum
+2. **Structure:** Start with title slide (report name + date), then disclaimer, then rating, then 3 key arguments, end with conclusion
+3. **Section count:** 7-9 sections maximum
 4. **Each section:** 1-2 sentences, punchy and direct
 5. **Language:** Conversational Chinese, suitable for voice narration — NOT formal report language
 6. **Numbers:** Keep specific numbers and percentages for credibility
 7. **No tables:** Convert table data into flowing narrative sentences
-8. **Type field:** Must be one of: `rating`, `point`, `conclusion`
+8. **Type field:** Must be one of: `title`, `disclaimer`, `rating`, `point`, `conclusion`
 9. **Output:** Raw JSON only — no markdown formatting, no code fences
