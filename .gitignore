@@ -30,3 +30,8 @@ build/
 
 # Generated analysis reports
 analysis/
+
+# gen-video artifacts
+gen-video/temp/
+gen-video/output/*.mp4
+gen-video/output/*.srt
