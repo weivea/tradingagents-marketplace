@@ -54,7 +54,7 @@ def compose_video(
     if layout == "full":
         video = _compose_full(frames_dir, audio, timestamps, duration)
     else:
-        video = _compose_short(frames_dir, audio, timestamps, duration)
+        video = _compose_short(frames_dir, audio, timestamps, duration, audio_path)
 
     video.write_videofile(
         output_path,
@@ -162,6 +162,7 @@ def _compose_short(
     audio: AudioFileClip,
     timestamps: list[dict],
     duration: float,
+    audio_file_path: str = "",
 ) -> CompositeVideoClip:
     """Compose short video — v2 (FFmpeg) if oversized frames detected, else legacy."""
     frames_path = Path(frames_dir)
@@ -189,7 +190,7 @@ def _compose_short(
             slide_paths=[str(s) for s in slides],
             sections=sections,
             timestamps=timestamps,
-            audio_path=str(frames_path.parent / "audio.mp3"),
+            audio_path=audio_file_path,
             total_duration=duration,
             output_path=output_path,
         )

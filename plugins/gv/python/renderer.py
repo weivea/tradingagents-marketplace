@@ -310,6 +310,11 @@ async def _render_short_v2(sections: list[dict], out: Path) -> dict:
 
         await browser.close()
 
+    # Save sections JSON alongside frames for composer to read
+    sections_json_path = out / "_sections.json"
+    with open(sections_json_path, "w", encoding="utf-8") as f:
+        json.dump(sections, f, ensure_ascii=False)
+
     return {"image_paths": image_paths}
 
 
