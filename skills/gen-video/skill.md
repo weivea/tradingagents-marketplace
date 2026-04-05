@@ -53,11 +53,10 @@ If version is "full" or "both":
 
 If version is "short" or "both":
 
-1. Dispatch **video-scriptwriter** agent with the full report text to extract a 60-90 second narration script (250-400 characters, 7-9 sections: title → disclaimer → rating → 3 key points → conclusion)
-2. Call `generate_tts(text=<script_text>, output_dir="gen-video/temp/{TICKER}_{DATE}_short", rate="+5%")`
-3. Save script sections to temp JSON file
-4. Call `render_frames(sections_path=<temp_json>, layout="short", output_dir="gen-video/temp/{TICKER}_{DATE}_short_frames")`
-5. Call `compose_video(frames_dir=<frames_dir>, audio_path=<audio>, timestamps_path=<timestamps>, layout="short", output_path="gen-video/output/{TICKER}_{DATE}_short.mp4")`
+1. Dispatch **video-scriptwriter** agent with the full report text. The agent returns structured JSON with 7 sections, each having `type`, `headline`, `body`, `tts_text`, and optional `highlights`/`index` fields. Save this JSON to a temp file for the render step.
+2. Extract all `tts_text` fields from the scriptwriter output, concatenate them, and pass to `generate_tts(text=<combined_tts_text>, output_dir="gen-video/temp/{TICKER}_{DATE}_short", rate="+5%")` for TTS synthesis.
+3. Call `render_frames(sections_path=<scriptwriter_json>, layout="short", output_dir="gen-video/temp/{TICKER}_{DATE}_short_frames")` — v2 format auto-detected, renders HTML/CSS slides via Playwright at 1134×2016
+4. Call `compose_video(frames_dir=<frames_dir>, audio_path=<audio>, timestamps_path=<timestamps>, layout="short", output_path="gen-video/output/{TICKER}_{DATE}_short.mp4")` — v2 format auto-detected, uses FFmpeg zoompan + xfade + ASS subtitles
 
 ### Step 5: Report Results
 
