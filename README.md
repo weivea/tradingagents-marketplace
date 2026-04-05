@@ -6,12 +6,17 @@ A Claude Code / Copilot CLI plugin that brings the [TradingAgents](https://githu
 
 ## Setup
 
-### 1. Build the MCP Server
+### 1. Build the MCP Servers
 
 ```bash
+# Financial data MCP server
 cd ta/plugins/t_mcp
 npm install
 npm run build
+
+# Video generation MCP server (requires uv — https://docs.astral.sh/uv/)
+cd ../gv
+npm run setup    # one-click: npm install + tsc + uv venv + playwright
 ```
 
 ### 2. Configure — Claude Code
@@ -193,7 +198,7 @@ Or use the CLI directly:
 
 ```bash
 cd plugins/gv
-python -m python generate "../../analysis/NIO_2026-04-04_zh.md" --version both
+uv run python -m python generate "../../analysis/NIO_2026-04-04_zh.md" --version both
 ```
 
 Output lands in `gen-video/output/`. See [`plugins/gv/README.md`](plugins/gv/README.md) for full documentation.

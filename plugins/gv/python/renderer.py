@@ -25,8 +25,23 @@ from .config import (
 
 
 def _load_font(bold: bool = False, size: int = FONT_SIZE_BODY) -> ImageFont.FreeTypeFont:
-    """Load font with fallback."""
-    names = [FONT_BOLD if bold else FONT_REGULAR, "msyh.ttc", "NotoSansCJKsc-Regular.otf", "arial.ttf"]
+    """Load font with CJK support.  Fallback chain covers Windows, macOS, Linux."""
+    names = [
+        # Configured / Windows
+        FONT_BOLD if bold else FONT_REGULAR,
+        "msyh.ttc",
+        # macOS (full paths required for system fonts)
+        "/System/Library/Fonts/Hiragino Sans GB.ttc",
+        "/System/Library/Fonts/STHeiti Medium.ttc",
+        "/Library/Fonts/Arial Unicode.ttf",
+        "/System/Library/Fonts/Supplemental/Songti.ttc",
+        # Linux
+        "NotoSansCJKsc-Regular.otf",
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc",
+        # Generic fallback
+        "arial.ttf",
+    ]
     for name in names:
         try:
             return ImageFont.truetype(name, size)

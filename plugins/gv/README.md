@@ -13,7 +13,7 @@
 
 ## 前置条件
 
-- Python 3.10+
+- [uv](https://docs.astral.sh/uv/)（Python 包管理器，自动管理 Python 版本和虚拟环境）
 - Node.js 18+
 - FFmpeg（需在 PATH 中，或由 `imageio_ffmpeg` 自动提供）
 - 中文字体：Windows 自带微软雅黑，Linux/macOS 需安装 Noto Sans CJK SC
@@ -44,13 +44,13 @@ npm run setup:python       # 创建 Python 虚拟环境（uv）+ 安装依赖 + 
 
 ```bash
 # 一键生成两个版本
-python -m python generate "../../analysis/NIO_2026-04-04_zh.md" --version both
+uv run python -m python generate "../../analysis/NIO_2026-04-04_zh.md" --version both
 
 # 仅生成精华版（快）
-python -m python generate "../../analysis/NIO_2026-04-04_zh.md" --version short
+uv run python -m python generate "../../analysis/NIO_2026-04-04_zh.md" --version short
 
 # 仅生成完整版（慢，8-15分钟报告约需30-90分钟编码）
-python -m python generate "../../analysis/NIO_2026-04-04_zh.md" --version full
+uv run python -m python generate "../../analysis/NIO_2026-04-04_zh.md" --version full
 ```
 
 输出文件在 `gen-video/output/` 目录：
@@ -93,16 +93,16 @@ CLI 也支持分步调用，方便调试：
 
 ```bash
 # 1. 解析报告
-python -m python parse "../../analysis/NIO_2026-04-04_zh.md"
+uv run python -m python parse "../../analysis/NIO_2026-04-04_zh.md"
 
 # 2. 生成语音（需要网络）
-python -m python tts --text "测试文本" --output-dir "../../gen-video/temp/test"
+uv run python -m python tts --text "测试文本" --output-dir "../../gen-video/temp/test"
 
 # 3. 渲染图片
-python -m python render --sections sections.json --layout full --output-dir "../../gen-video/temp/frames"
+uv run python -m python render --sections sections.json --layout full --output-dir "../../gen-video/temp/frames"
 
 # 4. 合成视频
-python -m python compose --frames-dir "../../gen-video/temp/frames/scroll.png" --audio audio.mp3 --timestamps timestamps.json --layout full --output "../../gen-video/output/test.mp4"
+uv run python -m python compose --frames-dir "../../gen-video/temp/frames/scroll.png" --audio audio.mp3 --timestamps timestamps.json --layout full --output "../../gen-video/output/test.mp4"
 ```
 
 ## 目录结构
@@ -128,9 +128,12 @@ plugins/gv/
 ├── .claude-plugin/
 │   └── plugin.json         # 插件元数据
 ├── .mcp.json               # MCP server 注册
+├── .gitignore
 ├── package.json
+├── pyproject.toml           # Python 依赖（uv 项目定义）
+├── uv.lock                  # uv 锁文件
 ├── tsconfig.json
-└── requirements.txt
+└── requirements.txt         # Python 依赖（pip 参考用）
 ```
 
 ## 技术栈
@@ -138,6 +141,7 @@ plugins/gv/
 | 组件 | 技术 | 职责 |
 |------|------|------|
 | MCP Server | Node.js + TypeScript | 暴露 MCP tools 给 Claude |
+| Python 运行时 | uv | 虚拟环境管理 + 依赖安装 + 调用 Python |
 | 语音合成 | edge-tts | 中文 TTS + 句级时间戳 |
 | 画面渲染 | Pillow | 中文文字渲染为图片 |
 | 视频合成 | MoviePy 2.x | 图片滚动动画 + 音频叠加 |
@@ -146,5 +150,5 @@ plugins/gv/
 ## 注意事项
 
 - **完整版编码很慢**：13 分钟的报告约需 60-90 分钟编码（受限于逐帧 numpy 裁剪），精华版通常 3-5 分钟完成
-- **Windows 编码问题**：运行时建议加 `python -X utf8` 避免中文输出乱码
-- **网络依赖**：edge-tts 需要联网调用 Microsoft TTS API，国内网络如果 pip 安装慢可用清华镜像 `-i https://pypi.tuna.tsinghua.edu.cn/simple`
+- **Windows 编码问题**：运行时建议加 `uv run python -X utf8 -m python ...` 避免中文输出乱码
+- **网络依赖**：edge-tts 需要联网调用 Microsoft TTS API
