@@ -43,7 +43,7 @@ This returns structured JSON with ticker, date, rating, sections, and key_sectio
 
 If version is "full" or "both":
 
-1. Extract text from all sections for TTS
+1. Extract text from all sections for TTS. **Prepend the opening line** `今日交易研报之<公司名>。` before the report text (use the Chinese company name from the report title, not the ticker symbol).
 2. Call `generate_tts(text=<full_text>, output_dir="gen-video/temp/{TICKER}_{DATE}_full")`
 3. Save sections to temp JSON file
 4. Call `render_frames(sections_path=<temp_json>, layout="full", output_dir="gen-video/temp/{TICKER}_{DATE}_full_frames")`
@@ -53,7 +53,7 @@ If version is "full" or "both":
 
 If version is "short" or "both":
 
-1. Dispatch **video-scriptwriter** agent with the full report text. The agent returns structured JSON with 7 sections, each having `type`, `headline`, `body`, `tts_text`, and optional `highlights`/`index` fields. Save this JSON to a temp file for the render step.
+1. Dispatch **video-scriptwriter** agent with the full report text. The agent returns structured JSON with 8 sections (title → disclaimer → rating → point ×3 → conclusion → follow), each having `type`, `headline`, `body`, `tts_text`, and optional `highlights`/`index`/`sub_body`/`metrics` fields. The title slide headline uses "今日交易研报之<公司名>" format. Save this JSON to a temp file for the render step.
 2. Extract all `tts_text` fields from the scriptwriter output, concatenate them, and pass to `generate_tts(text=<combined_tts_text>, output_dir="gen-video/temp/{TICKER}_{DATE}_short", rate="+5%")` for TTS synthesis.
 3. Call `render_frames(sections_path=<scriptwriter_json>, layout="short", output_dir="gen-video/temp/{TICKER}_{DATE}_short_frames")` — v2 format auto-detected, renders HTML/CSS slides via Playwright at 1134×2016
 4. Call `compose_video(frames_dir=<frames_dir>, audio_path=<audio>, timestamps_path=<timestamps>, layout="short", output_path="gen-video/output/{TICKER}_{DATE}_short.mp4")` — v2 format auto-detected, uses FFmpeg zoompan + xfade + ASS subtitles
