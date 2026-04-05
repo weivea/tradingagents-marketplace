@@ -1,8 +1,13 @@
 """CLI entry point: python -m python <command> [args]"""
 
 import argparse
+import io
 import json
 import sys
+
+# Force UTF-8 stdout on Windows (system default may be GBK/cp936)
+if sys.stdout.encoding != "utf-8":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
 
 def cmd_parse(args: argparse.Namespace) -> None:

@@ -13,8 +13,10 @@ export function callPython(args: string[]): Promise<string> {
       ["-m", "python", ...args],
       {
         cwd: PYTHON_DIR.replace(/[/\\]python$/, ""),  // run from plugins/gv/
-        timeout: 600_000,
+        timeout: 3_600_000,  // 60 min – full-layout video encoding needs more than 10 min
         maxBuffer: 50 * 1024 * 1024,  // 50MB for large JSON output
+        encoding: "utf-8",
+        env: { ...process.env, PYTHONIOENCODING: "utf-8" },
       },
       (err, stdout, stderr) => {
         if (err) {
