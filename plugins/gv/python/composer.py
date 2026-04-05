@@ -478,14 +478,20 @@ def _compose_short_v2(
         f.write(ass_content)
 
     # 6. Overlay subtitles + add audio
-    # FFmpeg filter expressions treat ':' as option separator, which breaks
-    # Windows absolute paths like C:/... — escape with backslash-colon.
-    ass_path_fwd = ass_path.replace("\\", "/").replace(":", "\\:")
+    # FFmpeg ass filter can't handle Windows drive-letter paths (C:/...) even
+    # with colon escaping.  Use os.path.relpath so the filter sees a path
+    # without a drive letter.  If relpath fails (different drives), fall back
+    # to the escaped absolute path.
+    import os
+    try:
+        ass_path_rel = os.path.relpath(ass_path).replace("\\", "/")
+    except ValueError:
+        ass_path_rel = ass_path.replace("\\", "/").replace(":", "\\:")
     cmd = [
         FFMPEG_PATH, "-y",
         "-i", merged_path,
         "-i", audio_path,
-        "-vf", f"ass={ass_path_fwd}",
+        "-vf", f"ass={ass_path_rel}",
         "-c:v", "libx264", "-pix_fmt", "yuv420p",
         "-c:a", "aac", "-b:a", "128k",
         "-t", f"{total_duration:.3f}",
