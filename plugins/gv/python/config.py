@@ -76,6 +76,7 @@ SHORT_V2_TRANSITIONS: dict[str, dict] = {
     "rating":     {"transition": "zoomin",     "duration": 0.8},
     "point":      {"transition": "slideleft",  "duration": 0.5},
     "conclusion": {"transition": "wipeup",     "duration": 0.8},
+    "follow":     {"transition": "fade",       "duration": 0.5},
 }
 
 # Ken Burns per slide type: (start_zoom, end_zoom)
@@ -85,4 +86,5 @@ SHORT_V2_KENBURNS: dict[str, tuple[float, float]] = {
     "rating":     (1.03, 1.0),  # zoom out
     "point":      (1.0, 1.03),  # zoom in
     "conclusion": (1.0, 1.03),
+    "follow":     (1.0, 1.0),   # static
 }
