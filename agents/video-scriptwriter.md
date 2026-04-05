@@ -39,8 +39,15 @@ Return a JSON array. Each element is one video slide:
     "type": "point",
     "index": 1,
     "headline": "风险收益比极差",
-    "body": "乐观上行仅3.7%，悲观下行-37%，不值得博",
+    "body": "乐观上行仅3.7%至分析师目标$6.53，悲观下行-17%至-37%",
+    "sub_body": "概率加权期望收益约为-5%至-17%。即使按最乐观假设，上行空间也远不足以补偿下行风险。",
     "highlights": ["+3.7%", "-37%"],
+    "metrics": [
+      {"label": "上行空间", "value": "+3.7%", "signal": "negative"},
+      {"label": "下行风险", "value": "-37%", "signal": "negative"},
+      {"label": "期望收益", "value": "-11%", "signal": "negative"},
+      {"label": "目标价", "value": "$6.53", "signal": "neutral"}
+    ],
     "tts_text": "风险收益比极差。乐观情况下上行仅百分之三点七，悲观下行高达百分之三十七。"
   },
   {
@@ -75,10 +82,12 @@ Return a JSON array. Each element is one video slide:
 |-------|----------|-------------|
 | `type` | Yes | One of: `title`, `disclaimer`, `rating`, `point`, `conclusion` |
 | `headline` | Yes | Punchy short text displayed prominently on the slide (max 15 chars) |
-| `body` | Yes | Supporting text displayed below the headline (1-2 sentences) |
+| `body` | Yes | Supporting text displayed below the headline (1-2 sentences, 30-60 chars) |
 | `tts_text` | Yes | Narration text optimized for voice reading — no symbols, no abbreviations, numbers spelled conversationally |
-| `highlights` | No | Array of 1-2 key numbers/percentages to visually emphasize (e.g. `["-34%", "$5.20"]`) |
+| `highlights` | No | Array of 2-4 key numbers/percentages to visually emphasize (e.g. `["-34%", "$5.20"]`) |
 | `index` | No | For `point` type only — sequential number (1, 2, 3) |
+| `sub_body` | No | 2-3 sentences of supporting detail for visual display (60-100 chars). NOT read aloud — display only. |
+| `metrics` | No | Array of 2-4 key metrics: `{label, value, signal}` where signal is `"positive"`, `"negative"`, or `"neutral"` |
 
 ## Creative Rules
 
@@ -90,6 +99,8 @@ Return a JSON array. Each element is one video slide:
 6. **Structure: 7 sections exactly** — title → disclaimer → rating → point ×3 → conclusion
 7. **Keep specific numbers** for credibility — never round "$4.82" to "about $5"
 8. **No tables, no markdown, no code fences** — raw JSON only
+9. **sub_body fills the card.** Write 2-3 sentences that add context the headline and body don't cover. Think "what would make the viewer pause and read?" This is display-only text, NOT narrated.
+10. **metrics are dashboard data.** Pick 2-4 numbers that tell the story at a glance. Each metric has a label (≤6 chars), value (the number), and signal (positive/negative/neutral for color coding).
 
 ## Output
 
