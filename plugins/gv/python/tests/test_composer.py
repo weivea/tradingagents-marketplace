@@ -94,6 +94,19 @@ class TestCalcSlideDurations:
         assert len(durations) == 3
         assert all(abs(d - 4.0) < 0.01 for d in durations)
 
+    def test_xfade_compensation(self):
+        from python.composer import _calc_slide_durations
+        sections = [
+            {"tts_text": "你好世界。"},
+            {"tts_text": "这是测试。"},
+            {"tts_text": "再见世界。"},
+        ]
+        timestamps = [{"text": "x", "offset_ms": 0, "duration_ms": 100}]
+        total_duration = 30.0
+        durations = _calc_slide_durations(sections, timestamps, total_duration, xfade_overlap=1.0)
+        assert sum(durations) > total_duration
+        assert abs(sum(durations) - (total_duration + 1.0)) < 0.1
+
 
 class TestBuildAssSubtitles:
     def test_generates_ass_content(self):

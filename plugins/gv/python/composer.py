@@ -222,35 +222,42 @@ def _calc_slide_durations(
     sections: list[dict],
     timestamps: list[dict],
     total_duration: float,
+    xfade_overlap: float = 0.0,
 ) -> list[float]:
     """Calculate per-slide durations based on TTS text character count.
 
     Falls back to equal split if no tts_text available.
+
+    Args:
+        xfade_overlap: Total seconds lost to xfade transitions between slides.
+            Slide durations are inflated by this amount so the final composed
+            video (after xfade compression) matches total_duration.
     """
     n = len(sections)
     if n == 0:
         return []
+    effective_duration = total_duration + xfade_overlap
     if not timestamps or not sections[0].get("tts_text"):
-        return [total_duration / n] * n
+        return [effective_duration / n] * n
 
     tts_texts = [s.get("tts_text", "") for s in sections]
     total_chars = sum(len(t) for t in tts_texts)
 
     if total_chars == 0:
-        return [total_duration / n] * n
+        return [effective_duration / n] * n
 
     # Proportional split by character count
-    durations = [len(t) / total_chars * total_duration for t in tts_texts]
+    durations = [len(t) / total_chars * effective_duration for t in tts_texts]
 
     # Ensure minimum 2 seconds per slide
     for i in range(len(durations)):
         if durations[i] < 2.0:
             durations[i] = 2.0
 
-    # Re-normalize to total_duration
+    # Re-normalize to effective_duration
     s = sum(durations)
     if s > 0:
-        durations = [d * total_duration / s for d in durations]
+        durations = [d * effective_duration / s for d in durations]
 
     return durations
 
@@ -436,10 +443,7 @@ def _compose_short_v2(
     out_w = SHORT_V2_OUTPUT_WIDTH
     out_h = SHORT_V2_OUTPUT_HEIGHT
 
-    # 1. Calculate per-slide durations
-    durations = _calc_slide_durations(sections, timestamps, total_duration)
-
-    # 2. Build transitions list
+    # 1. Build transitions list (needed to calculate overlap)
     transitions = []
     for i, section in enumerate(sections if sections else [{}] * n):
         stype = section.get("type", "point")
@@ -447,6 +451,10 @@ def _compose_short_v2(
         transitions.append(t)
     while len(transitions) < n:
         transitions.append(SHORT_V2_TRANSITIONS["point"])
+
+    # 2. Calculate per-slide durations with xfade compensation
+    xfade_overlap = sum(transitions[i]["duration"] for i in range(1, n)) if n > 1 else 0.0
+    durations = _calc_slide_durations(sections, timestamps, total_duration, xfade_overlap)
 
     # 3. Generate zoompan segments
     segment_paths: list[str] = []
@@ -480,7 +488,7 @@ def _compose_short_v2(
         "-vf", f"ass={ass_path_fwd}",
         "-c:v", "libx264", "-pix_fmt", "yuv420p",
         "-c:a", "aac", "-b:a", "128k",
-        "-shortest",
+        "-t", f"{total_duration:.3f}",
         str(out),
     ]
     subprocess.run(cmd, check=True, capture_output=True, timeout=180)
