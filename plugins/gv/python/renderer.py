@@ -295,6 +295,10 @@ async def _render_short_v2(sections: list[dict], out: Path) -> dict:
             ctx = _build_template_context(section, idx, len(sections), ticker, date)
             html = template.render(**ctx)
 
+            # Replace relative base.css with absolute file:/// path so Playwright finds it
+            css_abs = (TEMPLATES_DIR / "base.css").resolve().as_posix()
+            html = html.replace('href="base.css"', f'href="file:///{css_abs}"')
+
             html_path = out / f"_temp_{idx}.html"
             with open(html_path, "w", encoding="utf-8") as f:
                 f.write(html)

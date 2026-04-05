@@ -447,11 +447,13 @@ def _compose_short_v2(
         f.write(ass_content)
 
     # 6. Overlay subtitles + add audio
+    # FFmpeg filter expressions require forward slashes even on Windows
+    ass_path_fwd = ass_path.replace("\\", "/")
     cmd = [
         FFMPEG_PATH, "-y",
         "-i", merged_path,
         "-i", audio_path,
-        "-vf", f"ass={ass_path}",
+        "-vf", f"ass={ass_path_fwd}",
         "-c:v", "libx264", "-pix_fmt", "yuv420p",
         "-c:a", "aac", "-b:a", "128k",
         "-shortest",
