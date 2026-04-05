@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="base.css">
+</head>
+<body class="bg-rating">
+  <div style="text-align: center;">
+    <p class="label" style="margin-bottom: 20px;">最终评级</p>
+    <div class="card" style="display: inline-block; text-align: center; padding: 50px 80px;">
+      <h1 class="headline-xl rating-{{ rating_class }}" style="font-size: 96px; margin-bottom: 30px;">
+        {{ headline }}
+      </h1>
+      {% if highlights %}
+      <div class="highlights" style="justify-content: center;">
+        {% for h in highlights %}
+        <span class="chip {{ 'negative' if h.startswith('-') else 'positive' if h.startswith('+') else '' }}">{{ h }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+      <p class="body-text" style="margin-top: 20px;">{{ body }}</p>
+    </div>
+  </div>
+  <div class="progress-bar">
+    <span class="progress-index">❷</span>
+    <div class="progress-track">
+      <div class="progress-fill" style="width: {{ progress_pct }}%;"></div>
+    </div>
+  </div>
+  <div class="brand-bar">
+    <span>{{ ticker }}</span>
+    <span>{{ date }}</span>
+  </div>
+</body>
+</html>

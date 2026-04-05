@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="base.css">
+</head>
+<body class="bg-disclaimer">
+  <div style="text-align: center; opacity: 0.6;">
+    <div style="font-size: 48px; margin-bottom: 30px;">⚠</div>
+    <h2 class="headline-md" style="margin-bottom: 24px; opacity: 0.8;">{{ headline }}</h2>
+    <p class="body-text" style="max-width: 800px; opacity: 0.6;">{{ body }}</p>
+  </div>
+  <div class="progress-bar">
+    <span class="progress-index">❶</span>
+    <div class="progress-track">
+      <div class="progress-fill" style="width: {{ progress_pct }}%;"></div>
+    </div>
+  </div>
+  <div class="brand-bar">
+    <span>{{ ticker }}</span>
+    <span>{{ date }}</span>
+  </div>
+</body>
+</html>

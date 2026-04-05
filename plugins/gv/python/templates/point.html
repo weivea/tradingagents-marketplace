@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="base.css">
+</head>
+<body class="bg-point">
+  <div style="width: 90%; max-width: 960px;">
+    <div class="point-index">{{ index }}</div>
+    <div class="card">
+      <h2 class="headline-md" style="margin-bottom: 20px;">{{ headline }}</h2>
+      {% if highlights %}
+      <div class="highlights">
+        {% for h in highlights %}
+        <span class="chip {{ 'negative' if h.startswith('-') else 'positive' if h.startswith('+') or h.startswith('$') else '' }}">{{ h }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+      <p class="body-text">{{ body }}</p>
+    </div>
+  </div>
+  <div class="progress-bar">
+    <span class="progress-index">❸</span>
+    <div class="progress-track">
+      <div class="progress-fill" style="width: {{ progress_pct }}%;"></div>
+    </div>
+  </div>
+  <div class="brand-bar">
+    <span>{{ ticker }}</span>
+    <span>{{ date }}</span>
+  </div>
+</body>
+</html>
