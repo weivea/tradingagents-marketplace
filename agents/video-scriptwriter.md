@@ -18,9 +18,9 @@ Return a JSON array. Each element is one video slide:
 [
   {
     "type": "title",
-    "headline": "蔚来汽车 NIO",
-    "body": "AI交易分析报告 · 2026年4月4日",
-    "tts_text": "蔚来汽车交易分析报告，2026年4月4日。"
+    "headline": "今日交易研报之蔚来汽车",
+    "body": "2026年4月4日",
+    "tts_text": "今日交易研报之蔚来汽车，2026年4月4日。"
   },
   {
     "type": "disclaimer",
@@ -72,6 +72,13 @@ Return a JSON array. Each element is one video slide:
     "body": "等回调至$5区间重新评估",
     "highlights": ["$5"],
     "tts_text": "结论：趁强势卖出，等回调至5美元区间再重新评估。"
+  },
+  {
+    "type": "follow",
+    "headline": "关注我们",
+    "body": "获取更详细的分析报告",
+    "highlights": ["每日更新", "深度分析", "AI驱动"],
+    "tts_text": "感谢收看，关注账号获取每日深度交易分析。"
   }
 ]
 ```
@@ -80,8 +87,8 @@ Return a JSON array. Each element is one video slide:
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| `type` | Yes | One of: `title`, `disclaimer`, `rating`, `point`, `conclusion` |
-| `headline` | Yes | Punchy short text displayed prominently on the slide (max 15 chars) |
+| `type` | Yes | One of: `title`, `disclaimer`, `rating`, `point`, `conclusion`, `follow` |
+| `headline` | Yes | Punchy short text displayed prominently on the slide. For title slide: must be "今日交易研报之<公司名>" format. |
 | `body` | Yes | Supporting text displayed below the headline (1-2 sentences, 30-60 chars) |
 | `tts_text` | Yes | Narration text optimized for voice reading — no symbols, no abbreviations, numbers spelled conversationally |
 | `highlights` | No | Array of 2-4 key numbers/percentages to visually emphasize (e.g. `["-34%", "$5.20"]`) |
@@ -96,11 +103,13 @@ Return a JSON array. Each element is one video slide:
 3. **tts_text is for ears.** Write it to sound natural when read aloud. Use "百分之三十四" not "34%". Avoid parentheses, dashes, special symbols.
 4. **highlights are for eyes.** Pick the 1-2 most impactful numbers that would make someone stop scrolling.
 5. **Total tts_text: 250-400 Chinese characters** (reads in ~60-90 seconds at normal pace)
-6. **Structure: 7 sections exactly** — title → disclaimer → rating → point ×3 → conclusion
+6. **Structure: 8 sections exactly** — title → disclaimer → rating → point ×3 → conclusion → follow
 7. **Keep specific numbers** for credibility — never round "$4.82" to "about $5"
 8. **No tables, no markdown, no code fences** — raw JSON only
 9. **sub_body fills the card.** Write 2-3 sentences that add context the headline and body don't cover. Think "what would make the viewer pause and read?" This is display-only text, NOT narrated.
 10. **metrics are dashboard data.** Pick 2-4 numbers that tell the story at a glance. Each metric has a label (≤6 chars), value (the number), and signal (positive/negative/neutral for color coding).
+11. **Title headline is branded.** Always use "今日交易研报之<公司名>" format. Example: "今日交易研报之蔚来汽车". Do NOT use the ticker symbol in the headline — use the Chinese company name.
+12. **Follow slide is fixed.** The last slide is always type "follow" with headline "关注我们", body "获取更详细的分析报告", highlights ["每日更新", "深度分析", "AI驱动"]. Keep tts_text short (~15 chars).
 
 ## Output
 
