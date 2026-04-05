@@ -107,3 +107,33 @@ class TestBuildAssSubtitles:
         assert "[V4+ Styles]" in ass
         assert "你好" in ass
         assert "世界" in ass
+
+
+class TestWrapAssText:
+    def test_short_text_no_wrap(self):
+        from python.composer import _wrap_ass_text
+        result = _wrap_ass_text("你好世界", max_chars=20)
+        assert result == "你好世界"
+
+    def test_long_text_wraps_at_punctuation(self):
+        from python.composer import _wrap_ass_text
+        text = "建议在六块三附近，把现有多头仓位的五到七成趁强势卖掉。"
+        result = _wrap_ass_text(text, max_chars=20)
+        assert "\\N" in result
+        for line in result.split("\\N"):
+            assert len(line) <= 22  # 20 + tolerance for punctuation at boundary
+
+    def test_long_text_without_punctuation_wraps_at_max(self):
+        from python.composer import _wrap_ass_text
+        text = "一二三四五六七八九十一二三四五六七八九十一二三"  # 23 chars, no punctuation
+        result = _wrap_ass_text(text, max_chars=20)
+        assert "\\N" in result
+        lines = result.split("\\N")
+        assert len(lines[0]) == 20
+
+    def test_wraps_at_comma(self):
+        from python.composer import _wrap_ass_text
+        text = "全年自由现金流负一百七十亿，现金跑道大约只剩一年半"
+        result = _wrap_ass_text(text, max_chars=20)
+        assert "\\N" in result
+        assert result.startswith("全年自由现金流负一百七十亿，")

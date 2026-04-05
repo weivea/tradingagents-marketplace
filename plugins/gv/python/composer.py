@@ -352,6 +352,30 @@ def _build_xfade_cmd(
     ]
 
 
+def _wrap_ass_text(text: str, max_chars: int = 20) -> str:
+    """Wrap Chinese text for ASS subtitles using \\N line breaks.
+
+    Breaks at Chinese punctuation when possible, otherwise at max_chars.
+    """
+    breakable = set("，。；：！？、")
+    result = []
+    current_line = ""
+
+    for char in text:
+        current_line += char
+        if len(current_line) >= max_chars:
+            result.append(current_line)
+            current_line = ""
+        elif char in breakable and len(current_line) >= 8:
+            result.append(current_line)
+            current_line = ""
+
+    if current_line:
+        result.append(current_line)
+
+    return "\\N".join(result)
+
+
 def _build_ass_subtitles(
     timestamps: list[dict],
     width: int = 1080,
@@ -371,7 +395,7 @@ Title: Gen-Video Subtitles
 ScriptType: v4.00+
 PlayResX: {width}
 PlayResY: {height}
-WrapStyle: 0
+WrapStyle: 2
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
@@ -389,9 +413,10 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         text = ts["text"].strip()
         if not text or text in ("，", "。", "、", "；", "：", "！", "？", "…"):
             continue
+        wrapped = _wrap_ass_text(text, max_chars=20)
         start_t = ms_to_ass_time(start_ms)
         end_t = ms_to_ass_time(end_ms)
-        events.append(f"Dialogue: 0,{start_t},{end_t},Highlight,,0,0,0,,{text}")
+        events.append(f"Dialogue: 0,{start_t},{end_t},Highlight,,0,0,0,,{wrapped}")
 
     return header + "\n".join(events) + "\n"
 
