@@ -4,9 +4,12 @@ Full layout: one tall scroll image (1080 x N pixels) + y_map.json.
 Short layout: one 1080x1920 image per section.
 """
 
+import asyncio
 import json
+import re
 from pathlib import Path
 
+from jinja2 import Environment, FileSystemLoader
 from PIL import Image, ImageDraw, ImageFont
 
 from .config import (
@@ -17,6 +20,7 @@ from .config import (
     FONT_SIZE_BODY, FONT_SIZE_H1, FONT_SIZE_H2, FONT_SIZE_H3, FONT_SIZE_SMALL,
     LINE_HEIGHT_MULTIPLIER,
     HEADER_HEIGHT, RATING_CARD_HEIGHT, SCROLL_AREA_HEIGHT,
+    TEMPLATES_DIR, SHORT_V2_RENDER_WIDTH, SHORT_V2_RENDER_HEIGHT,
 )
 
 
@@ -199,8 +203,118 @@ def _render_full(sections: list[dict], out: Path) -> dict:
     }
 
 
+def _is_v2_format(sections: list[dict]) -> bool:
+    """Detect whether sections use v2 format (headline/body/tts_text) or legacy (text)."""
+    if not sections:
+        return False
+    first = sections[0]
+    return "headline" in first and "tts_text" in first
+
+
+def _build_template_context(
+    section: dict,
+    idx: int,
+    total: int,
+    ticker: str,
+    date: str,
+) -> dict:
+    """Build Jinja2 template context from a v2 section."""
+    progress_pct = round(((idx + 1) / total) * 100)
+    ctx = {
+        "headline": section.get("headline", ""),
+        "body": section.get("body", ""),
+        "highlights": section.get("highlights", []),
+        "ticker": ticker,
+        "date": date,
+        "progress_pct": progress_pct,
+        "index": section.get("index", idx),
+    }
+    # Rating class
+    if section.get("type") == "rating":
+        h = section.get("headline", "")
+        if "卖出" in h or "减持" in h:
+            ctx["rating_class"] = "sell"
+        elif "买入" in h or "增持" in h:
+            ctx["rating_class"] = "buy"
+        else:
+            ctx["rating_class"] = "hold"
+    # Progress indicator unicode numbers
+    circled = "❶❷❸❹❺❻❼❽❾"
+    ctx["progress_icon"] = circled[min(idx, len(circled) - 1)]
+    return ctx
+
+
 def _render_short(sections: list[dict], out: Path) -> dict:
-    """Render one 1080x1920 image per section for the short version."""
+    """Render short slides — v2 (HTML/Playwright) or legacy (Pillow) based on format."""
+    if _is_v2_format(sections):
+        return asyncio.run(_render_short_v2(sections, out))
+    else:
+        return _render_short_legacy(sections, out)
+
+
+async def _render_short_v2(sections: list[dict], out: Path) -> dict:
+    """Render short slides using HTML templates + Playwright screenshots."""
+    from playwright.async_api import async_playwright
+
+    env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
+    image_paths: list[str] = []
+
+    # Extract ticker/date from title section or fallback
+    ticker = "STOCK"
+    date = ""
+    for s in sections:
+        if s.get("type") == "title":
+            headline = s.get("headline", "")
+            parts = headline.split()
+            for p in parts:
+                if p.isascii() and p.isalpha():
+                    ticker = p
+                    break
+            break
+    for s in sections:
+        body = s.get("body", "")
+        m = re.search(r"(\d{4}[-年/]\d{1,2}[-月/]\d{1,2})", body)
+        if m:
+            date = m.group(1)
+            break
+
+    async with async_playwright() as pw:
+        browser = await pw.chromium.launch()
+        page = await browser.new_page(
+            viewport={"width": SHORT_V2_RENDER_WIDTH, "height": SHORT_V2_RENDER_HEIGHT},
+        )
+
+        for idx, section in enumerate(sections):
+            section_type = section.get("type", "point")
+            template_name = f"{section_type}.html"
+            try:
+                template = env.get_template(template_name)
+            except Exception:
+                template = env.get_template("point.html")
+
+            ctx = _build_template_context(section, idx, len(sections), ticker, date)
+            html = template.render(**ctx)
+
+            html_path = out / f"_temp_{idx}.html"
+            with open(html_path, "w", encoding="utf-8") as f:
+                f.write(html)
+
+            await page.goto(f"file:///{html_path.resolve().as_posix()}")
+            await page.wait_for_load_state("networkidle")
+
+            slide_path = out / f"slide_{idx:02d}.png"
+            await page.screenshot(path=str(slide_path))
+            image_paths.append(str(slide_path))
+
+            html_path.unlink(missing_ok=True)
+
+        await browser.close()
+
+    return {"image_paths": image_paths}
+
+
+def _render_short_legacy(sections: list[dict], out: Path) -> dict:
+    """Legacy Pillow renderer for backward compatibility with old section format."""
     image_paths: list[str] = []
     font_big = _load_font(bold=True, size=28)
     font_body = _load_font(bold=False, size=21)
@@ -213,9 +327,7 @@ def _render_short(sections: list[dict], out: Path) -> dict:
         section_type = section.get("type", "paragraph")
         usable_width = WIDTH - 2 * MARGIN_X
 
-        # Center content vertically
         if section_type == "rating_card":
-            # Large centered rating
             color = RATING_SELL_COLOR if "卖出" in text or "减持" in text else (
                 RATING_BUY_COLOR if "买入" in text or "增持" in text else HEADING_COLOR
             )
@@ -223,23 +335,19 @@ def _render_short(sections: list[dict], out: Path) -> dict:
             lbbox = draw.textbbox((0, 0), label_text, font=font_label)
             lw = lbbox[2] - lbbox[0]
             draw.text(((WIDTH - lw) // 2, HEIGHT // 2 - 80), label_text, font=font_label, fill=ACCENT_COLOR)
-
             bbox = draw.textbbox((0, 0), text, font=font_big)
             tw = bbox[2] - bbox[0]
             draw.text(((WIDTH - tw) // 2, HEIGHT // 2 - 30), text, font=font_big, fill=color)
         else:
-            # Wrapped text centered
             wrapped = _wrap_text(draw, text, font_body, usable_width)
             line_h = int(font_body.size * LINE_HEIGHT_MULTIPLIER)
             total_text_h = len(wrapped) * line_h
             start_y = (HEIGHT - total_text_h) // 2
-
             for li, line in enumerate(wrapped):
                 bbox = draw.textbbox((0, 0), line, font=font_body)
                 lw = bbox[2] - bbox[0]
                 draw.text(((WIDTH - lw) // 2, start_y + li * line_h), line, font=font_body, fill=TEXT_COLOR)
 
-        # Progress dots at bottom
         dot_y = HEIGHT - 80
         total_dots = len(sections)
         dot_spacing = 16
@@ -254,6 +362,4 @@ def _render_short(sections: list[dict], out: Path) -> dict:
         img.save(str(path), "PNG")
         image_paths.append(str(path))
 
-    return {
-        "image_paths": image_paths,
-    }
+    return {"image_paths": image_paths}
