@@ -55,7 +55,7 @@ body {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: 24px;
-  padding: 60px 50px;
+  padding: 40px 40px;
   max-width: 960px;
   width: 90%;
   backdrop-filter: blur(20px);
@@ -91,6 +91,43 @@ body {
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 4px;
+}
+
+.sub-body {
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  opacity: 0.8;
+  margin-top: 16px;
+}
+
+/* --- Metrics grid --- */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 24px;
+}
+.metric-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 16px 20px;
+  text-align: center;
+}
+.metric-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.metric-value.positive { color: var(--rating-buy); }
+.metric-value.negative { color: var(--rating-sell); }
+.metric-value.neutral { color: var(--rating-hold); }
+.metric-label {
+  font-size: 20px;
+  color: var(--text-secondary);
+  margin-top: 4px;
 }
 
 /* --- Highlight chips --- */

@@ -228,6 +228,8 @@ def _build_template_context(
         "date": date,
         "progress_pct": progress_pct,
         "index": section.get("index", idx),
+        "sub_body": section.get("sub_body", ""),
+        "metrics": section.get("metrics", []),
     }
     # Rating class
     if section.get("type") == "rating":

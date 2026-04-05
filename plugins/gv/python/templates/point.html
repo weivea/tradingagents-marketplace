@@ -17,6 +17,19 @@
       </div>
       {% endif %}
       <p class="body-text">{{ body }}</p>
+      {% if sub_body %}
+      <p class="sub-body">{{ sub_body }}</p>
+      {% endif %}
+      {% if metrics %}
+      <div class="metrics-grid">
+        {% for m in metrics %}
+        <div class="metric-item">
+          <div class="metric-value {{ m.signal }}">{{ m.value }}</div>
+          <div class="metric-label">{{ m.label }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
     </div>
   </div>
   <div class="progress-bar">

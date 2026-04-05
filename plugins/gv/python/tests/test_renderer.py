@@ -76,6 +76,30 @@ class TestBuildTemplateContext:
         assert ctx["index"] == 2
 
 
+    def test_sub_body_and_metrics_passed(self):
+        from python.renderer import _build_template_context
+        section = {
+            "type": "point",
+            "index": 1,
+            "headline": "Test",
+            "body": "Body",
+            "tts_text": "Test",
+            "sub_body": "补充说明文字",
+            "metrics": [{"label": "RSI", "value": "64", "signal": "neutral"}],
+        }
+        ctx = _build_template_context(section, idx=3, total=7, ticker="NIO", date="2026-04-04")
+        assert ctx["sub_body"] == "补充说明文字"
+        assert len(ctx["metrics"]) == 1
+        assert ctx["metrics"][0]["label"] == "RSI"
+
+    def test_missing_sub_body_defaults_empty(self):
+        from python.renderer import _build_template_context
+        section = {"type": "point", "index": 1, "headline": "Test", "body": "Body", "tts_text": "Test"}
+        ctx = _build_template_context(section, idx=3, total=7, ticker="NIO", date="2026-04-04")
+        assert ctx["sub_body"] == ""
+        assert ctx["metrics"] == []
+
+
 class TestRenderShortV2Integration:
     """Integration test — requires Playwright chromium installed."""
 

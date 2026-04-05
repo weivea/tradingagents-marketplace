@@ -7,7 +7,7 @@
 <body class="bg-rating">
   <div style="text-align: center;">
     <p class="label" style="margin-bottom: 20px;">最终评级</p>
-    <div class="card" style="display: inline-block; text-align: center; padding: 50px 80px;">
+    <div class="card" style="display: inline-block; text-align: center; padding: 40px 80px;">
       <h1 class="headline-xl rating-{{ rating_class }}" style="font-size: 96px; margin-bottom: 30px;">
         {{ headline }}
       </h1>
@@ -19,6 +19,19 @@
       </div>
       {% endif %}
       <p class="body-text" style="margin-top: 20px;">{{ body }}</p>
+      {% if sub_body %}
+      <p class="sub-body" style="text-align: center;">{{ sub_body }}</p>
+      {% endif %}
+      {% if metrics %}
+      <div class="metrics-grid" style="text-align: center;">
+        {% for m in metrics %}
+        <div class="metric-item">
+          <div class="metric-value {{ m.signal }}">{{ m.value }}</div>
+          <div class="metric-label">{{ m.label }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
     </div>
   </div>
   <div class="progress-bar">
