@@ -23,16 +23,18 @@
 
 ```bash
 cd plugins/gv
-
-# Node.js 依赖（MCP server）
-npm install
-
-# Python 依赖（TTS / 渲染 / 视频合成）
-pip install -r requirements.txt
-
-# 编译 TypeScript
-npm run build
+npm run setup    # 一键初始化（Node + TypeScript + Python 虚拟环境 + Playwright）
 ```
+
+或分步执行：
+
+```bash
+npm install                # Node.js 依赖
+npm run build              # 编译 TypeScript
+npm run setup:python       # 创建 Python 虚拟环境（uv）+ 安装依赖 + Playwright
+```
+
+> 需要预装 [uv](https://docs.astral.sh/uv/)（Python 包管理器）和 Node.js 18+。
 
 ## 使用方式
 
