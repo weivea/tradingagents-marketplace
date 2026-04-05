@@ -172,14 +172,12 @@ def _compose_short(
         bg = ColorClip(size=(WIDTH, HEIGHT), color=BG_COLOR).with_duration(duration)
         return bg.with_audio(audio)
 
-    # Detect v2 by checking image dimensions (v2 renders at 1134x2016)
-    from PIL import Image as PILImage
-    first_img = PILImage.open(str(slides[0]))
-    is_v2 = first_img.width > WIDTH
+    # Detect v2 by checking for _sections.json (written by v2 renderer)
+    sections_json = frames_path / "_sections.json"
+    is_v2 = sections_json.exists()
 
     if is_v2:
         # Read the sections JSON to get tts_text for duration calc
-        sections_json = frames_path / "_sections.json"
         sections = []
         if sections_json.exists():
             with open(sections_json, "r", encoding="utf-8") as f:
@@ -389,7 +387,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         start_ms = ts["offset_ms"]
         end_ms = start_ms + ts["duration_ms"]
         text = ts["text"].strip()
-        if not text or text in ("，", "。", "、", "；", "："):
+        if not text or text in ("，", "。", "、", "；", "：", "！", "？", "…"):
             continue
         start_t = ms_to_ass_time(start_ms)
         end_t = ms_to_ass_time(end_ms)
@@ -432,13 +430,13 @@ def _compose_short_v2(
         sz, ez = SHORT_V2_KENBURNS.get(stype, (1.0, 1.03))
         seg_path = str(tmp_dir / f"_seg_{i:02d}.mp4")
         cmd = _build_zoompan_cmd(slide_path, seg_path, durations[i], sz, ez, FPS, out_w, out_h)
-        subprocess.run(cmd, check=True, capture_output=True)
+        subprocess.run(cmd, check=True, capture_output=True, timeout=120)
         segment_paths.append(seg_path)
 
     # 4. Merge segments with xfade
     merged_path = str(tmp_dir / "_merged.mp4")
     cmd = _build_xfade_cmd(segment_paths, durations, transitions, merged_path)
-    subprocess.run(cmd, check=True, capture_output=True)
+    subprocess.run(cmd, check=True, capture_output=True, timeout=180)
 
     # 5. Generate ASS subtitles
     ass_path = str(tmp_dir / "_subtitles.ass")
@@ -459,10 +457,11 @@ def _compose_short_v2(
         "-shortest",
         str(out),
     ]
-    subprocess.run(cmd, check=True, capture_output=True)
+    subprocess.run(cmd, check=True, capture_output=True, timeout=180)
 
     # 7. Cleanup temp files
     for seg in segment_paths:
         Path(seg).unlink(missing_ok=True)
     Path(merged_path).unlink(missing_ok=True)
+    Path(ass_path).unlink(missing_ok=True)
 
