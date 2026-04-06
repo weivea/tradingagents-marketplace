@@ -1,0 +1,8 @@
+{
+  "name": "cn_mcp",
+  "description": "MCP server providing 6 Chinese A-share data tools (news, dragon tiger list, shareholder changes, stock info) via AKShare for the TradingAgents framework",
+  "version": "0.1.0",
+  "author": {
+    "name": "TauricResearch"
+  }
+}

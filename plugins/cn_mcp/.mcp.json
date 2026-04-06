@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "cn": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["./plugins/cn_mcp/dist/index.js"],
+      "env": {}
+    }
+  }
+}
