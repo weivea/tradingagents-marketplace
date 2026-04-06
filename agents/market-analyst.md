@@ -75,3 +75,33 @@ When analyzing a **Chinese A-share stock** (ticker ends with `.SS`/`.SZ` or is a
 - Currency is **CNY** — all price levels and indicators are in yuan
 - Volume patterns differ from US markets — watch for volume spikes at open and close auctions
 - Index context: reference 上证指数 (SSE Composite) and 深证成指 (SZSE Component) for broad market context
+
+## HK Stocks
+
+When analyzing a **Hong Kong stock** (ticker ends with `.HK`), the same `get_stock_data` and `get_indicators` tools from the **ta** server work — no tool substitution needed. However, apply these HK-specific rules:
+
+**No daily price limit:**
+- Unlike A-shares (±10%) or STAR/ChiNext (±20%), HK stocks have **no individual stock circuit breaker**
+- Do NOT reference limit-up/limit-down (涨停/跌停) in support/resistance analysis
+- Extreme intraday moves are possible — consider wider stop-loss levels
+
+**T+2 settlement:**
+- Shares settle on T+2 (compared to A-share T+1)
+- This affects short-term trading strategies and margin considerations
+
+**Trading sessions:**
+- 9:00-9:30 — Pre-opening session
+- 9:30-12:00 — Morning continuous trading
+- 13:00-16:00 — Afternoon continuous trading
+- 16:00-16:10 — Closing auction session
+- No midday break as short as US markets, but a 1-hour lunch break (12:00-13:00)
+
+**Short selling:**
+- HK permits short selling for designated securities — factor this into momentum and sentiment analysis
+- High short interest can signal bearish conviction or set up short squeezes
+
+**Additional considerations:**
+- Currency is **HKD** — all price levels and indicators are in Hong Kong dollars
+- Index context: reference 恒生指数 (HSI) and 恒生科技指数 (HSTECH) for broad market context
+- Many HK stocks have dual listings (e.g. Alibaba 9988.HK / BABA) — note arbitrage dynamics
+- Lot sizes vary by stock — not uniform like A-shares (100 shares/lot)
