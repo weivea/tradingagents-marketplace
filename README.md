@@ -1,9 +1,6 @@
 # TradingAgents — Claude Code Plugin
 
-A Claude Code / Copilot CLI plugin that brings the [TradingAgents](https://github.com/TauricResearch/TradingAgents) multi-agent trading framework to your terminal. Specialized AI agents — analysts, researchers, traders, and risk managers — collaborate to evaluate stocks and produce trading decisions.
-
-> ⚠️ **Disclaimer**: This plugin is for research purposes only. It is not financial, investment, or trading advice.
-
+A Claude Code / Copilot CLI plugin 
 ## Setup
 
 ### 1. Build the MCP Servers
@@ -203,20 +200,4 @@ uv run python -m python generate "../../analysis/NIO_2026-04-04_zh.md" --version
 
 Output lands in `gen-video/output/`. See [`plugins/gv/README.md`](plugins/gv/README.md) for full documentation.
 
-## Credits
 
-Based on the [TradingAgents](https://github.com/TauricResearch/TradingAgents) framework by [Tauric Research](https://tauric.ai/).
-
-## Citation
-
-```bibtex
-@misc{xiao2025tradingagentsmultiagentsllmfinancial,
-      title={TradingAgents: Multi-Agents LLM Financial Trading Framework},
-      author={Yijia Xiao and Edward Sun and Di Luo and Wei Wang},
-      year={2025},
-      eprint={2412.20138},
-      archivePrefix={arXiv},
-      primaryClass={q-fin.TR},
-      url={https://arxiv.org/abs/2412.20138},
-}
-```
