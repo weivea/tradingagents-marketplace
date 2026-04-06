@@ -6,6 +6,9 @@ import { getCnNews, getCnGlobalNews } from "./tools/news.js";
 import { getCnDragonTiger, getCnDragonTigerStats } from "./tools/dragon-tiger.js";
 import { getCnShareholderChanges } from "./tools/shareholder.js";
 import { getCnStockInfo } from "./tools/stock-info.js";
+import { getHkStockInfo } from "./tools/hk-stock-info.js";
+import { getHkStockConnect } from "./tools/hk-stock-connect.js";
+import { getHkHotRank } from "./tools/hk-hot-rank.js";
 
 const server = new McpServer({
   name: "cn",
@@ -97,6 +100,48 @@ server.registerTool(
   },
   async (params) => ({
     content: [{ type: "text", text: await getCnStockInfo(params) }],
+  })
+);
+
+// --- HK Stock Info ---
+server.registerTool(
+  "get_hk_stock_info",
+  {
+    description: "Get basic information for a Hong Kong stock (company profile, listing info, financial indicators)",
+    inputSchema: {
+      symbol: z.string().describe("HK stock code (e.g. 00700, 0700.HK, or 700)"),
+    },
+  },
+  async (params) => ({
+    content: [{ type: "text", text: await getHkStockInfo(params) }],
+  })
+);
+
+// --- HK Stock Connect ---
+server.registerTool(
+  "get_hk_stock_connect",
+  {
+    description: "Get Stock Connect (港股通) southbound holding data and trend for a Hong Kong stock",
+    inputSchema: {
+      symbol: z.string().describe("HK stock code (e.g. 00700, 0700.HK, or 700)"),
+    },
+  },
+  async (params) => ({
+    content: [{ type: "text", text: await getHkStockConnect(params) }],
+  })
+);
+
+// --- HK Hot Rank ---
+server.registerTool(
+  "get_hk_hot_rank",
+  {
+    description: "Get Hong Kong stock popularity / hot rank. Without symbol: top-20 hottest HK stocks. With symbol: historical rank trend for that stock.",
+    inputSchema: {
+      symbol: z.string().optional().describe("HK stock code (optional — omit for overall top-20 ranking)"),
+    },
+  },
+  async (params) => ({
+    content: [{ type: "text", text: await getHkHotRank(params) }],
   })
 );
 
