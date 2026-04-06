@@ -117,6 +117,51 @@ Before dispatching any sub-agents, determine whether the ticker is a **Chinese A
 
 ---
 
+### HK Stock Market Detection
+
+Before dispatching any sub-agents, also determine whether the ticker is a **Hong Kong stock**.
+
+**Detection rules — a ticker is HK stock if ANY of these match:**
+1. It ends with `.HK` — e.g. `0700.HK`, `9988.HK`, `1810.HK`
+2. The user explicitly mentions it is a Hong Kong / 港股 stock
+
+**Ticker format conversion:**
+- For `ta` server tools (Yahoo Finance): use `XXXX.HK` format (4-digit code + `.HK`), e.g. `0700.HK`
+- For `cn` server HK tools (AKShare): use 5-digit code, e.g. `00700`
+
+**When the ticker IS an HK stock**, inject the following rules block into every sub-agent prompt:
+
+```
+**HK Stock Market Rules:**
+- Trading hours: Morning 9:30-12:00, Afternoon 13:00-16:00 (HKT, UTC+8)
+- Closing auction: 16:00-16:10
+- No daily price limit (unlike A-share ±10%, HK stocks have no circuit breaker on individual stocks)
+- T+2 settlement
+- Currency: HKD (Hong Kong Dollar)
+- Lot size varies by stock (not uniform 100 shares like A-shares)
+- Short selling is permitted for designated securities
+- Many large HK-listed stocks also trade as ADRs in the US (e.g. BABA / 9988.HK)
+- Stock Connect southbound holdings (港股通) are a key sentiment indicator
+```
+
+**Data source routing table — HK stocks:**
+
+| Data Need | MCP Server | Tool |
+|-----------|-----------|------|
+| Stock price (OHLCV) | ta | `get_stock_data(XXXX.HK, ...)` |
+| Technical indicators | ta | `get_indicators(XXXX.HK, indicator, date)` |
+| Company news | ta | `get_news(XXXX.HK, start, end)` — English news, limited precision |
+| Global/macro news | ta | `get_global_news(date)` |
+| Company fundamentals | ta | `get_fundamentals(XXXX.HK)` |
+| Financial statements | ta | `get_balance_sheet` / `get_cashflow` / `get_income_statement(XXXX.HK)` |
+| Company info (HK-specific) | **cn** | `get_hk_stock_info(XXXXX)` |
+| Stock Connect holdings | **cn** | `get_hk_stock_connect(XXXXX)` |
+| Hot rank / popularity | **cn** | `get_hk_hot_rank(XXXXX)` |
+
+**Important:** Do NOT use A-share-specific tools for HK stocks: `get_cn_news`, `get_cn_dragon_tiger`, `get_cn_shareholder_changes`, `get_cn_stock_info`.
+
+---
+
 ### Phase 1: Analyst Reports (PARALLEL)
 
 Dispatch **4 sub-agents in parallel** using the Task tool with `mode="background"`:
@@ -136,6 +181,10 @@ Prompt the sub-agent with:
 > **If the ticker is an A-share stock**, also include:
 > {A-Share Market Rules block}
 > Note price limit bands when discussing support/resistance. Account for T+1 restrictions in trading recommendations. Mention trading session context (call auction vs continuous).
+>
+> **If the ticker is an HK stock**, also include:
+> {HK Stock Market Rules block}
+> Note that HK stocks have NO daily price limit — support/resistance analysis should not reference limit-up/limit-down. Account for T+2 settlement. Consider HK trading session timing when discussing entry/exit.
 
 **Sub-agent 2 — Sentiment Analyst:**
 Prompt the sub-agent with:
@@ -153,6 +202,15 @@ Prompt the sub-agent with:
 > 3. Analyze sentiment from the news — identify positive/negative/neutral signals
 > 4. Consider 东方财富股吧 and 雪球 sentiment characteristics when assessing social buzz
 > 5. Note northbound capital (北向资金) flows as a key sentiment indicator
+> 6. Write a comprehensive sentiment report with overall assessment and a Markdown summary table
+>
+> **If the ticker is an HK stock**, use a mix of ta and cn MCP tools:
+> {HK Stock Market Rules block}
+> 1. Call `get_news(ticker="{TICKER}", start_date="{7_DAYS_BEFORE}", end_date="{DATE}")` from **ta** server for English news (note: precision is limited for HK stocks)
+> 2. Call `get_hk_stock_info(symbol="{HK_CODE}")` from **cn** server for company info
+> 3. Call `get_hk_stock_connect(symbol="{HK_CODE}")` from **cn** server for Stock Connect holding trends — southbound capital flows are a key sentiment indicator
+> 4. Call `get_hk_hot_rank(symbol="{HK_CODE}")` from **cn** server for popularity ranking trend
+> 5. HK market sentiment is influenced by both US and A-share markets — note cross-market dynamics
 > 6. Write a comprehensive sentiment report with overall assessment and a Markdown summary table
 >
 > Use the exact ticker "{TICKER}" in every tool call.
@@ -176,6 +234,16 @@ Prompt the sub-agent with:
 > 5. Focus on policy impact (CSRC, PBOC, State Council), northbound capital flows, and sector rotation
 > 6. Write a comprehensive news analysis report with a Markdown summary table
 >
+> **If the ticker is an HK stock**, use a mix of ta and cn MCP tools:
+> {HK Stock Market Rules block}
+> 1. Call `get_news(ticker="{TICKER}", start_date="{7_DAYS_BEFORE}", end_date="{DATE}")` from **ta** server for English news (limited precision for HK stocks)
+> 2. Call `get_global_news(curr_date="{DATE}", look_back_days=7, limit=10)` from **ta** server for macro news
+> 3. Call `get_hk_stock_connect(symbol="{HK_CODE}")` from **cn** server for Stock Connect flows (replaces insider transactions / 龙虎榜 for HK)
+> 4. Call `get_hk_stock_info(symbol="{HK_CODE}")` from **cn** server for company info including Stock Connect eligibility
+> 5. Focus on HK-specific risks: US-China relations, regulatory changes, cross-listing dynamics
+> 6. Write a comprehensive news analysis report with a Markdown summary table
+> Note: Do NOT use A-share tools (get_cn_news, get_cn_dragon_tiger, get_cn_shareholder_changes) for HK stocks.
+>
 > Use the exact ticker "{TICKER}" in every tool call.
 
 **Sub-agent 4 — Fundamentals Analyst:**
@@ -195,6 +263,11 @@ Prompt the sub-agent with:
 > {A-Share Market Rules block}
 > Additionally call `get_cn_stock_info(symbol="{TICKER}")` from **cn** server for A-share basic info (industry classification, market cap, float shares).
 > Note: Financial statements are reported under Chinese GAAP. Currency is CNY. Consider state ownership structure and any government-related entity among major shareholders.
+>
+> **If the ticker is an HK stock**, also include:
+> {HK Stock Market Rules block}
+> Additionally call `get_hk_stock_info(symbol="{HK_CODE}")` from **cn** server for HK-specific info (listing date, lot size, Stock Connect eligibility, financial snapshot).
+> Note: HK-listed companies report under IFRS (not US GAAP or Chinese GAAP). Currency is typically HKD or USD. Identify if the company has weighted voting rights (WVR, marked with -W). Distinguish H-shares (mainland-incorporated) from red-chips (offshore-incorporated, mainland operations) from local HK companies.
 
 **After all 4 complete**, collect their reports as:
 - `market_report` — from Market Analyst
