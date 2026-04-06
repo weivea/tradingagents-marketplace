@@ -21,6 +21,11 @@
       "name": "gv",
       "description": "MCP server for generating narrated scrolling videos from Chinese analysis reports",
       "source": "./plugins/gv"
+    },
+    {
+      "name": "cn_mcp",
+      "description": "MCP server providing 6 Chinese A-share data tools (news, dragon tiger list, shareholder changes, stock info) via AKShare for the TradingAgents framework",
+      "source": "./plugins/cn_mcp"
     }
   ]
 }
