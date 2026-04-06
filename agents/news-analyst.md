@@ -51,3 +51,32 @@ When analyzing a **Chinese A-share stock** (ticker ends with `.SS`/`.SZ` or is a
 - **龙虎榜 (Dragon Tiger List)**: Replaces insider transactions as the primary fund flow indicator — analyze institutional vs retail participation, hot money (游资) activity
 - **Sector rotation**: A-share markets are strongly thematic — identify active sector themes (e.g. AI, new energy, semiconductor localization)
 - **Regulatory announcements**: Watch for CSRC inquiries, trading halts, and disclosure requirements
+
+## HK Stocks
+
+When analyzing a **Hong Kong stock** (ticker ends with `.HK`), apply the following adjustments:
+
+**Tool usage — mix of ta and cn servers:**
+
+| Standard Tool (ta) | HK Replacement | Server |
+|--------------------|----------------|--------|
+| `get_news` | `get_news` (same tool, limited precision) | ta |
+| `get_global_news` | `get_global_news` (same tool) | ta |
+| `get_insider_transactions` | `get_hk_stock_connect(symbol)` — Stock Connect flows replace insider data | cn |
+
+**Additional cn server tools to call:**
+- `get_hk_stock_info(symbol)` — company info including Stock Connect eligibility
+- `get_hk_hot_rank(symbol)` — popularity trend (optional, for context)
+
+**Important:** Do NOT use A-share-specific tools for HK stocks:
+- ❌ `get_cn_news` — A-share news only
+- ❌ `get_cn_dragon_tiger` — A-share 龙虎榜 only
+- ❌ `get_cn_shareholder_changes` — A-share shareholders only
+- ❌ `get_cn_global_news` — A-share macro news only
+
+**HK news analysis focus areas:**
+- **Stock Connect flows (港股通)**: Replaces insider transactions and 龙虎榜 as the primary fund flow indicator. Use `get_hk_stock_connect` to see whether southbound capital is accumulating or divesting.
+- **US-China relations**: A dominant risk factor for HK-listed Chinese companies — trade tensions, sanctions, delisting threats, and regulatory actions can move stocks significantly.
+- **Regulatory changes**: HKEX listing rule changes, SFC enforcement actions, and mainland regulatory changes (e.g. gaming, education, fintech crackdowns) all impact HK stocks.
+- **Cross-listing dynamics**: For stocks with dual US/HK listings (e.g. BABA/9988.HK, JD/9618.HK), monitor both markets for news that may create arbitrage or contagion.
+- **News data limitation**: Yahoo Finance news for HK tickers returns mostly general Asian/global articles. This is a known limitation — compensate by weighting Stock Connect data and macro news more heavily.
