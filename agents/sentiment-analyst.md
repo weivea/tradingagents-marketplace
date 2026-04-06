@@ -27,3 +27,23 @@ Write a comprehensive report that includes:
 - A **Markdown summary table** at the end organizing key findings
 
 Use the exact ticker in all tool calls, preserving any exchange suffix.
+
+## A-Share Stocks
+
+When analyzing a **Chinese A-share stock** (ticker ends with `.SS`/`.SZ` or is a 6-digit numeric code), apply the following adjustments:
+
+**Tool substitutions — use cn server instead of ta server:**
+
+| Standard Tool (ta) | A-Share Tool (cn) |
+|--------------------|--------------------|
+| `get_news` | `get_cn_news(symbol, limit)` — company news from 东方财富 |
+
+**Additional cn server tools to call:**
+- `get_cn_stock_info(symbol)` — A-share basic company info for context
+
+**A-share sentiment analysis focus areas:**
+- **东方财富股吧 & 雪球 (Xueqiu)**: The dominant retail investor sentiment platforms in China — news sourced from 东方财富 reflects this ecosystem. Retail sentiment swings are sharper and more frequent than in US markets.
+- **Northbound capital (北向资金)**: A critical sentiment indicator — sustained net inflows signal institutional/foreign confidence; sudden outflows signal risk-off. Treat this as a high-weight sentiment signal.
+- **Policy sentiment**: Government policy announcements can flip sentiment overnight — stimulus = bullish, tightening = bearish. Monitor CSRC, PBOC, and State Council tone.
+- **Retail vs institutional divide**: A-shares are heavily retail-driven (~60-70% of turnover). Retail herding behavior amplifies sentiment extremes.
+- **Social media narratives**: Key Chinese platforms (微博, 雪球, 东方财富股吧) may drive narrative cycles — identify whether current buzz is organic or speculative.

@@ -80,6 +80,43 @@ When the user asks to analyze a stock for trading decisions. Trigger phrases inc
 
 ## Execution Steps
 
+### A-Share Market Detection
+
+Before dispatching any sub-agents, determine whether the ticker is a **Chinese A-share stock**.
+
+**Detection rules — a ticker is A-share if ANY of these match:**
+1. It ends with `.SS` (Shanghai) or `.SZ` (Shenzhen) — e.g. `600519.SS`, `000858.SZ`
+2. It is a 6-digit numeric string (e.g. `600519`, `000858`, `300750`) — automatically append `.SS` for codes starting with `6` and `.SZ` for codes starting with `0` or `3`
+
+**When the ticker IS an A-share stock**, inject the following rules block into every sub-agent prompt (analysts, researchers, trader, risk team, portfolio manager):
+
+```
+**A-Share Market Rules:**
+- Price limit: Main board ±10%, STAR/ChiNext ±20%, ST ±5%
+- T+1 trading (cannot sell shares bought on the same day)
+- Trading hours: 9:15-9:25 call auction, 9:30-11:30 / 13:00-15:00 continuous
+- Currency: CNY (Chinese Yuan)
+- Dragon tiger list (龙虎榜) replaces insider transactions as a fund flow indicator
+- Policy-driven: CSRC, PBOC, and State Council policies heavily impact A-shares
+- Northbound capital (北向资金 via Stock Connect) is a key sentiment indicator
+```
+
+**Data source routing table:**
+
+| Data Need | US Stocks (MCP server) | A-Share Stocks (MCP server) |
+|-----------|----------------------|---------------------------|
+| Stock price (OHLCV) | `get_stock_data` (ta) | `get_stock_data` (ta) — works for `.SS`/`.SZ` tickers |
+| Technical indicators | `get_indicators` (ta) | `get_indicators` (ta) — works for `.SS`/`.SZ` tickers |
+| Company news | `get_news` (ta) | `get_cn_news` (**cn**) |
+| Global/macro news | `get_global_news` (ta) | `get_cn_global_news` (**cn**) |
+| Insider / fund flow | `get_insider_transactions` (ta) | `get_cn_dragon_tiger` (**cn**) + `get_cn_dragon_tiger_stats` (**cn**) |
+| Shareholder changes | N/A | `get_cn_shareholder_changes` (**cn**) |
+| Company fundamentals | `get_fundamentals` (ta) | `get_fundamentals` (ta) — works for `.SS`/`.SZ` tickers |
+| Financial statements | `get_balance_sheet` / `get_cashflow` / `get_income_statement` (ta) | Same tools (ta) — work for `.SS`/`.SZ` tickers |
+| Company info | N/A | `get_cn_stock_info` (**cn**) |
+
+---
+
 ### Phase 1: Analyst Reports (PARALLEL)
 
 Dispatch **4 sub-agents in parallel** using the Task tool with `mode="background"`:
@@ -95,15 +132,28 @@ Prompt the sub-agent with:
 > 4. Write a detailed technical analysis report with specific price levels and a Markdown summary table
 >
 > Use the exact ticker "{TICKER}" in every tool call, preserving any exchange suffix.
+>
+> **If the ticker is an A-share stock**, also include:
+> {A-Share Market Rules block}
+> Note price limit bands when discussing support/resistance. Account for T+1 restrictions in trading recommendations. Mention trading session context (call auction vs continuous).
 
 **Sub-agent 2 — Sentiment Analyst:**
 Prompt the sub-agent with:
 > You are a Social Media & Sentiment Analyst. Analyze sentiment for {TICKER} as of {DATE}.
 >
-> Use MCP tools from ta:
+> **If the ticker is a US stock**, use MCP tools from ta:
 > 1. Call `get_news(ticker="{TICKER}", start_date="{7_DAYS_BEFORE}", end_date="{DATE}")` for company news
 > 2. Analyze sentiment from the articles — identify positive/negative/neutral signals
 > 3. Write a comprehensive sentiment report with overall assessment and a Markdown summary table
+>
+> **If the ticker is an A-share stock**, use MCP tools from cn:
+> {A-Share Market Rules block}
+> 1. Call `get_cn_news(symbol="{TICKER}", limit=50)` from **cn** server for company news from 东方财富
+> 2. Call `get_cn_stock_info(symbol="{TICKER}")` from **cn** server for basic company info
+> 3. Analyze sentiment from the news — identify positive/negative/neutral signals
+> 4. Consider 东方财富股吧 and 雪球 sentiment characteristics when assessing social buzz
+> 5. Note northbound capital (北向资金) flows as a key sentiment indicator
+> 6. Write a comprehensive sentiment report with overall assessment and a Markdown summary table
 >
 > Use the exact ticker "{TICKER}" in every tool call.
 
@@ -111,11 +161,20 @@ Prompt the sub-agent with:
 Prompt the sub-agent with:
 > You are a News Analyst. Analyze news for {TICKER} as of {DATE}.
 >
-> Use MCP tools from ta:
+> **If the ticker is a US stock**, use MCP tools from ta:
 > 1. Call `get_news(ticker="{TICKER}", start_date="{7_DAYS_BEFORE}", end_date="{DATE}")` for company news
 > 2. Call `get_global_news(curr_date="{DATE}", look_back_days=7, limit=10)` for macroeconomic news
 > 3. Call `get_insider_transactions(ticker="{TICKER}")` for insider activity
 > 4. Write a comprehensive news analysis report with a Markdown summary table
+>
+> **If the ticker is an A-share stock**, use MCP tools from cn:
+> {A-Share Market Rules block}
+> 1. Call `get_cn_news(symbol="{TICKER}", limit=50)` from **cn** server for company news from 东方财富
+> 2. Call `get_cn_global_news(limit=20)` from **cn** server for Chinese macro/market news
+> 3. Call `get_cn_dragon_tiger(symbol="{TICKER}", start_date="{30_DAYS_BEFORE}", end_date="{DATE}")` from **cn** server for 龙虎榜 data (replaces insider transactions)
+> 4. Call `get_cn_shareholder_changes(symbol="{TICKER}")` from **cn** server for top-10 shareholder changes
+> 5. Focus on policy impact (CSRC, PBOC, State Council), northbound capital flows, and sector rotation
+> 6. Write a comprehensive news analysis report with a Markdown summary table
 >
 > Use the exact ticker "{TICKER}" in every tool call.
 
@@ -131,6 +190,11 @@ Prompt the sub-agent with:
 > 5. Write a comprehensive fundamental analysis report with a Markdown summary table
 >
 > Use the exact ticker "{TICKER}" in every tool call.
+>
+> **If the ticker is an A-share stock**, also include:
+> {A-Share Market Rules block}
+> Additionally call `get_cn_stock_info(symbol="{TICKER}")` from **cn** server for A-share basic info (industry classification, market cap, float shares).
+> Note: Financial statements are reported under Chinese GAAP. Currency is CNY. Consider state ownership structure and any government-related entity among major shareholders.
 
 **After all 4 complete**, collect their reports as:
 - `market_report` — from Market Analyst

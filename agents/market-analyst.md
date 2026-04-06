@@ -48,3 +48,30 @@ Write a detailed, nuanced report with:
 - A **Markdown summary table** at the end organizing key findings
 
 Use the exact ticker in all tool calls, preserving any exchange suffix (e.g. `.TO`, `.L`, `.HK`).
+
+## A-Share Stocks
+
+When analyzing a **Chinese A-share stock** (ticker ends with `.SS`/`.SZ` or is a 6-digit numeric code), the same `get_stock_data` and `get_indicators` tools from the **ta** server work — no tool substitution needed. However, apply these A-share-specific rules:
+
+**Price limit bands — critical for support/resistance analysis:**
+- **Main board** (SSE/SZSE): ±10% daily limit
+- **STAR Market (科创板, 688xxx)** and **ChiNext (创业板, 300xxx)**: ±20% daily limit
+- **ST / *ST stocks**: ±5% daily limit
+- When price hits the limit (涨停/跌停), trading may halt — factor this into support/resistance levels and breakout analysis
+
+**T+1 settlement rule:**
+- Shares bought today cannot be sold until the next trading day
+- This affects short-term momentum strategies — intraday reversal trades are not possible
+- Consider this when recommending entry/exit timing
+
+**Trading sessions:**
+- 9:15-9:25 — Call auction (集合竞价): opening price determined here; watch for large order imbalances
+- 9:30-11:30 — Morning continuous trading
+- 13:00-15:00 — Afternoon continuous trading
+- 14:57-15:00 — Closing call auction
+- No pre-market or after-hours continuous trading like US markets
+
+**Additional considerations:**
+- Currency is **CNY** — all price levels and indicators are in yuan
+- Volume patterns differ from US markets — watch for volume spikes at open and close auctions
+- Index context: reference 上证指数 (SSE Composite) and 深证成指 (SZSE Component) for broad market context

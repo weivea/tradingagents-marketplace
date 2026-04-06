@@ -31,3 +31,20 @@ Write a comprehensive report covering:
 - A **Markdown summary table** at the end organizing key findings
 
 Use the exact ticker in all tool calls, preserving any exchange suffix.
+
+## A-Share Stocks
+
+When analyzing a **Chinese A-share stock** (ticker ends with `.SS`/`.SZ` or is a 6-digit numeric code), the same `get_fundamentals`, `get_balance_sheet`, `get_cashflow`, and `get_income_statement` tools from the **ta** server work. Apply these additional considerations:
+
+**Additional cn server tool:**
+- Call `get_cn_stock_info(symbol)` from **cn** server for A-share basic info including industry classification, total/float shares, market cap, and listing date
+
+**A-share fundamental analysis adjustments:**
+
+- **Currency**: All financial data is reported in **CNY (Chinese Yuan)**. Use CNY for all valuation metrics and comparisons.
+- **Accounting standards**: Chinese listed companies report under **Chinese GAAP (中国会计准则)**, which differs from US GAAP/IFRS in areas like revenue recognition, government grants, and asset impairment. Note any material differences.
+- **State ownership**: Many A-share companies have significant state ownership (国有企业). Identify whether the largest shareholder is a government entity or state-owned enterprise — this affects governance, dividend policy, and strategic direction.
+- **Related party transactions**: Common in A-share companies, especially SOEs. Flag any significant related party transactions found in the financials.
+- **Government subsidies**: Many Chinese companies receive substantial government subsidies (政府补贴) that inflate reported profits. Check "other income" or "non-operating income" for subsidy amounts and assess earnings quality excluding subsidies.
+- **Pledge ratio**: Check if major shareholders have pledged significant shares (股权质押) — high pledge ratios signal liquidity risk for controlling shareholders.
+- **Valuation context**: A-share valuations often differ from US/HK peers due to capital account restrictions, retail investor dominance, and limited short-selling. Compare against A-share sector averages rather than global peers.
