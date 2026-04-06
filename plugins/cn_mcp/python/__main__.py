@@ -90,6 +90,28 @@ def cmd_cn_stock_info(args: argparse.Namespace) -> None:
     _dump(result)
 
 
+def cmd_hk_stock_info(args: argparse.Namespace) -> None:
+    from .hk_stock_info import get_hk_stock_info
+
+    result = get_hk_stock_info(args.symbol)
+    _dump(result)
+
+
+def cmd_hk_stock_connect(args: argparse.Namespace) -> None:
+    from .hk_stock_connect import get_hk_stock_connect
+
+    result = get_hk_stock_connect(args.symbol)
+    _dump(result)
+
+
+def cmd_hk_hot_rank(args: argparse.Namespace) -> None:
+    from .hk_hot_rank import get_hk_hot_rank
+
+    symbol = getattr(args, "symbol", None)
+    result = get_hk_hot_rank(symbol=symbol)
+    _dump(result)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(prog="cn_mcp", description="Chinese A-share data CLI")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -127,6 +149,21 @@ def main() -> None:
     p_info = sub.add_parser("cn-stock-info", help="Basic stock information")
     p_info.add_argument("symbol", help="Ticker symbol (e.g. 600519.SS or 600519)")
     p_info.set_defaults(func=cmd_cn_stock_info)
+
+    # hk-stock-info
+    p_hk_info = sub.add_parser("hk-stock-info", help="HK stock basic information")
+    p_hk_info.add_argument("symbol", help="HK stock code (e.g. 00700)")
+    p_hk_info.set_defaults(func=cmd_hk_stock_info)
+
+    # hk-stock-connect
+    p_hk_connect = sub.add_parser("hk-stock-connect", help="HK Stock Connect holding data")
+    p_hk_connect.add_argument("symbol", help="HK stock code (e.g. 00700)")
+    p_hk_connect.set_defaults(func=cmd_hk_stock_connect)
+
+    # hk-hot-rank
+    p_hk_rank = sub.add_parser("hk-hot-rank", help="HK stock hot rank")
+    p_hk_rank.add_argument("symbol", nargs="?", default=None, help="HK stock code (optional)")
+    p_hk_rank.set_defaults(func=cmd_hk_hot_rank)
 
     args = parser.parse_args()
     args.func(args)
