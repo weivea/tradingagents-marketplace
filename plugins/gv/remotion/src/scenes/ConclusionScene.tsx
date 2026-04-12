@@ -160,7 +160,7 @@ export const ConclusionScene: React.FC<Props> = ({
       </div>
 
       {/* Progress bar at 100% */}
-      <ProgressBar progress={1.0} icon={progressIcon} />
+      <ProgressBar progress={progressPct} icon={progressIcon} />
 
       {/* Brand bar */}
       <div

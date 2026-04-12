@@ -57,7 +57,6 @@ export const DisclaimerScene: React.FC<Props> = ({
         position: "relative",
         overflow: "hidden",
         background: `linear-gradient(${variant.gradientAngle}deg, ${bg1}, ${bg2})`,
-        opacity: 0.6,
         fontFamily: "'Noto Sans SC', sans-serif",
       }}
     >

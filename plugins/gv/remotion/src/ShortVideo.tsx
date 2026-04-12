@@ -16,6 +16,7 @@ import { CatalystScene } from "./scenes/CatalystScene";
 import { QuoteScene } from "./scenes/QuoteScene";
 import { ConclusionScene } from "./scenes/ConclusionScene";
 import { FollowScene } from "./scenes/FollowScene";
+import { RiskMatrixScene } from "./scenes/RiskMatrixScene";
 
 const CIRCLED = "❶❷❸❹❺❻❼❽❾❿";
 
@@ -118,6 +119,11 @@ export const ShortVideo: React.FC<VideoProps> = ({
           case "quote":
             sceneElement = <QuoteScene section={section} {...commonProps} />;
             break;
+          case "risk-matrix":
+            sceneElement = (
+              <RiskMatrixScene section={section} {...commonProps} />
+            );
+            break;
           case "conclusion":
             sceneElement = (
               <ConclusionScene section={section} {...commonProps} />
@@ -128,6 +134,7 @@ export const ShortVideo: React.FC<VideoProps> = ({
               <FollowScene
                 section={section}
                 variant={variant}
+                progressIcon={progressIcon}
                 ticker={ticker}
                 date={date}
               />

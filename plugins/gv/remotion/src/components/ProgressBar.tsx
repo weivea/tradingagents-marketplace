@@ -2,6 +2,7 @@ import React from "react";
 import { useCurrentFrame, useVideoConfig, interpolate } from "remotion";
 
 interface Props {
+  /** Progress percentage 0-100. */
   progress: number;
   icon?: string;
   enterDelay?: number;
@@ -15,7 +16,7 @@ export const ProgressBar: React.FC<Props> = ({ progress, icon = "❶", enterDela
   const fillProgress = interpolate(
     frame - delayFrames,
     [0, 20],
-    [0, progress * 100],
+    [0, Math.min(progress, 100)],
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
   );
 

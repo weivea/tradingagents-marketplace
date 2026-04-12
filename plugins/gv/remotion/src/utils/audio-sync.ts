@@ -10,14 +10,17 @@ export function calcSectionTimings(
   if (n === 0) return [];
 
   const minFrames = 2 * fps;
+
+  // If total time can't accommodate minimum per section, reduce minFrames
+  const effectiveMin = Math.min(minFrames, Math.floor(totalFrames / n));
   const charCounts = sections.map((s) => s.tts_text.length || 1);
   const totalChars = charCounts.reduce((a, b) => a + b, 0);
 
   let durations = charCounts.map((c) => Math.round((c / totalChars) * totalFrames));
 
   for (let i = 0; i < durations.length; i++) {
-    if (durations[i] < minFrames) {
-      durations[i] = minFrames;
+    if (durations[i] < effectiveMin) {
+      durations[i] = effectiveMin;
     }
   }
 
@@ -26,7 +29,7 @@ export function calcSectionTimings(
   if (sum !== totalFrames) {
     const diff = totalFrames - sum;
     const flexIndices = durations
-      .map((d, i) => (d > minFrames ? i : -1))
+      .map((d, i) => (d > effectiveMin ? i : -1))
       .filter((i) => i >= 0);
 
     if (flexIndices.length > 0) {
@@ -41,8 +44,8 @@ export function calcSectionTimings(
       // Fix any rounding remainder on the last flex section
       durations[flexIndices[flexIndices.length - 1]] += diff - distributed;
     } else {
-      // All sections are at minimum — adjust last section
-      durations[durations.length - 1] += diff;
+      // All sections are at minimum — adjust last section (clamp to at least 1 frame)
+      durations[durations.length - 1] = Math.max(1, durations[durations.length - 1] + diff);
     }
   }
 

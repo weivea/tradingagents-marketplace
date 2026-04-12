@@ -192,16 +192,22 @@ def _compose_short(
         seed = seed_match.group(1) if seed_match else "default"
 
         output_path_v3 = str(frames_path / "_v3_composed.mp4")
-        _compose_short_v3(
-            sections=sections,
-            timestamps=timestamps,
-            audio_path=audio_file_path,
-            total_duration=duration,
-            output_path=output_path_v3,
-            seed=seed,
-        )
-        from moviepy import VideoFileClip
-        return VideoFileClip(output_path_v3)
+        try:
+            _compose_short_v3(
+                sections=sections,
+                timestamps=timestamps,
+                audio_path=audio_file_path,
+                total_duration=duration,
+                output_path=output_path_v3,
+                seed=seed,
+            )
+            from moviepy import VideoFileClip
+            return VideoFileClip(output_path_v3)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(
+                "Remotion v3 render failed, falling back to v2: %s", e
+            )
 
     if is_v2:
         # Read the sections JSON to get tts_text for duration calc
@@ -581,6 +587,8 @@ def _compose_short_v3(
         "--output", str(Path(output_path).resolve()),
         "--codec", REMOTION_CODEC,
         "--crf", str(REMOTION_CRF),
+        "--pixel-format", "yuv420p10le",
+        "--audio-bitrate", "192K",
     ]
     subprocess.run(
         cmd,

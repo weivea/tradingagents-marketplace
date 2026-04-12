@@ -11,6 +11,7 @@ import { BASE_COLORS, rotateHue } from "../theme/colors";
 interface Props {
   section: Section;
   variant: ThemeVariant;
+  progressIcon: string;
   ticker: string;
   date: string;
 }
@@ -18,6 +19,7 @@ interface Props {
 export const FollowScene: React.FC<Props> = ({
   section,
   variant,
+  progressIcon,
   ticker,
   date,
 }) => {
@@ -156,7 +158,7 @@ export const FollowScene: React.FC<Props> = ({
       </div>
 
       {/* Hardcoded progress bar with ❽ icon */}
-      <ProgressBar progress={1.0} icon="❽" />
+      <ProgressBar progress={100} icon={progressIcon} />
 
       {/* Brand bar */}
       <div
