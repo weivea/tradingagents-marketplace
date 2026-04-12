@@ -1,6 +1,6 @@
 ---
 name: gen-video
-description: Generate narrated scrolling videos from Chinese analysis reports. Converts analysis/*_zh.md to MP4 with TTS narration and synchronized text animation. Produces full version (8-15 min scroll) and short version (60-90s slides).
+description: Generate narrated scrolling videos from Chinese analysis reports. Converts analysis/*_zh.md to MP4 with TTS narration and synchronized text animation. Produces full version (8-15 min scroll) and short version (60-120s animated slides).
 ---
 
 # Gen-Video — Report to Video Pipeline
@@ -53,10 +53,10 @@ If version is "full" or "both":
 
 If version is "short" or "both":
 
-1. Dispatch **video-scriptwriter** agent with the full report text. The agent returns structured JSON with 8 sections (title → disclaimer → rating → point ×3 → conclusion → follow), each having `type`, `headline`, `body`, `tts_text`, and optional `highlights`/`index`/`sub_body`/`metrics` fields. The title slide headline uses "今日交易研报之<公司名>" format. Save this JSON to a temp file for the render step.
+1. Dispatch **video-scriptwriter** agent with the full report text. The agent returns structured JSON with 5-10 sections (title + disclaimer + rating at start, conclusion + follow at end, 1-5 dynamic content sections in between using types: point, comparison, data-highlight, catalyst, quote, risk-matrix). Each section has `type`, `headline`, `body`, `tts_text`, and type-specific fields. The title slide headline uses "今日交易研报之<公司名>" format. Save this JSON to a temp file for the render step.
 2. Extract all `tts_text` fields from the scriptwriter output, concatenate them, and pass to `generate_tts(text=<combined_tts_text>, output_dir="gen-video/temp/{TICKER}_{DATE}_short", rate="+5%")` for TTS synthesis.
-3. Call `render_frames(sections_path=<scriptwriter_json>, layout="short", output_dir="gen-video/temp/{TICKER}_{DATE}_short_frames")` — v2 format auto-detected, renders HTML/CSS slides via Playwright at 1134×2016
-4. Call `compose_video(frames_dir=<frames_dir>, audio_path=<audio>, timestamps_path=<timestamps>, layout="short", output_path="gen-video/output/{TICKER}_{DATE}_short.mp4")` — v2 format auto-detected, uses FFmpeg zoompan + xfade + ASS subtitles
+3. Call `render_frames(sections_path=<scriptwriter_json>, layout="short", output_dir="gen-video/temp/{TICKER}_{DATE}_short_frames")` — If Remotion is installed (`plugins/gv/remotion/node_modules` exists), the Remotion renderer produces fully animated video with glass morphism effects, floating orbs, element-level animations, and 10-bit H.265 encoding. Falls back to Playwright + FFmpeg (v2) if Remotion is not available.
+4. Call `compose_video(frames_dir=<frames_dir>, audio_path=<audio>, timestamps_path=<timestamps>, layout="short", output_path="gen-video/output/{TICKER}_{DATE}_short.mp4")` — Remotion v3 auto-detected when available (animated React scenes, 30fps, H.265 10-bit). Falls back to v2 (FFmpeg zoompan + xfade + ASS subtitles) when Remotion is not installed.
 
 ### Step 5: Report Results
 
