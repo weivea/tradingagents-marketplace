@@ -9,6 +9,7 @@ import json
 import re
 from pathlib import Path
 
+import numpy as np
 from jinja2 import Environment, FileSystemLoader
 from PIL import Image, ImageDraw, ImageFont
 
@@ -48,6 +49,27 @@ def _load_font(bold: bool = False, size: int = FONT_SIZE_BODY) -> ImageFont.Free
         except OSError:
             continue
     return ImageFont.load_default()
+
+
+def _apply_dither_noise(image_path: str, strength: float = 6.0) -> None:
+    """Add fine noise to a slide image to break up gradient banding.
+
+    CSS gradients in dark color ranges (e.g. #0a0e27 → #141833) produce
+    visible stepping because adjacent 8-bit color values differ by only 1-2.
+    Adding ±strength random noise per pixel provides dithering that smooths
+    the perceived gradient.
+
+    Operates in-place on the PNG file.
+    """
+    img = Image.open(image_path)
+    arr = np.array(img, dtype=np.int16)
+    noise = np.random.randint(
+        -int(strength), int(strength) + 1,
+        size=arr.shape,
+        dtype=np.int16,
+    )
+    arr = np.clip(arr + noise, 0, 255).astype(np.uint8)
+    Image.fromarray(arr).save(image_path)
 
 
 def _wrap_text(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.FreeTypeFont, max_width: int) -> list[str]:
@@ -207,6 +229,7 @@ def _render_full(sections: list[dict], out: Path) -> dict:
     # Save image and y_map
     image_path = out / "scroll.png"
     img.save(str(image_path), "PNG")
+    _apply_dither_noise(str(image_path))
 
     y_map_path = out / "y_map.json"
     with open(y_map_path, "w", encoding="utf-8") as f:
@@ -325,6 +348,7 @@ async def _render_short_v2(sections: list[dict], out: Path) -> dict:
 
             slide_path = out / f"slide_{idx:02d}.png"
             await page.screenshot(path=str(slide_path))
+            _apply_dither_noise(str(slide_path))
             image_paths.append(str(slide_path))
 
             html_path.unlink(missing_ok=True)
@@ -386,6 +410,7 @@ def _render_short_legacy(sections: list[dict], out: Path) -> dict:
 
         path = out / f"slide_{idx:02d}.png"
         img.save(str(path), "PNG")
+        _apply_dither_noise(str(path))
         image_paths.append(str(path))
 
     return {"image_paths": image_paths}

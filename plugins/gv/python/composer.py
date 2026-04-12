@@ -64,6 +64,7 @@ def compose_video(
         codec=CODEC,
         audio_codec="aac",
         logger="bar",
+        ffmpeg_params=["-vf", "deband=1thr=0.02:2thr=0.02:3thr=0.02:blur=1"],
     )
 
     audio.close()
@@ -524,9 +525,9 @@ def _compose_short_v2(
         FFMPEG_PATH, "-y",
         "-i", merged_path,
         "-i", audio_path,
-        "-vf", f"ass={ass_path_rel}",
+        "-vf", f"ass={ass_path_rel},deband=1thr=0.02:2thr=0.02:3thr=0.02:blur=1",
         "-c:v", "libx264", "-pix_fmt", "yuv420p",
-        "-c:a", "aac", "-b:a", "128k",
+        "-c:a", "aac", "-b:a", "192k",
         "-t", f"{total_duration:.3f}",
         str(out),
     ]
