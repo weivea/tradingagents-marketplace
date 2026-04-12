@@ -1,0 +1,139 @@
+<h2>差异化系统 + Scriptwriter 升级</h2>
+<p class="subtitle">让每期视频在视觉和结构上都不同，避免平台判定为批量内容</p>
+
+<div class="section">
+  <h3>🎨 视觉随机变体系统</h3>
+  <div class="mockup">
+    <div class="mockup-header">每期视频生成时，从以下维度随机组合</div>
+    <div class="mockup-body" style="font-size:13px;line-height:1.9;padding:16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <div style="color:#8b5cf6;font-weight:700;margin-bottom:6px;">🌈 色相偏移</div>
+          <div style="color:rgba(255,255,255,0.6);">基准紫蓝色调 ±30° 随机偏移<br>光斑颜色从色相环随机取 3 个互补色<br>评级色固定（红/绿/黄不变）</div>
+        </div>
+        <div>
+          <div style="color:#3b82f6;font-weight:700;margin-bottom:6px;">📐 渐变方向</div>
+          <div style="color:rgba(255,255,255,0.6);">背景渐变角度从 [120°, 135°, 150°, 160°, 180°] 随机<br>光斑初始位置随机<br>渐变色阶数量 2-4 个</div>
+        </div>
+        <div>
+          <div style="color:#4ade80;font-weight:700;margin-bottom:6px;">💫 光斑配置</div>
+          <div style="color:rgba(255,255,255,0.6);">数量 3-5 个<br>大小 60-150px 随机<br>模糊强度 20-40px<br>漂移速度和路径 (Perlin seed)</div>
+        </div>
+        <div>
+          <div style="color:#fbbf24;font-weight:700;margin-bottom:6px;">🔤 排版微调</div>
+          <div style="color:rgba(255,255,255,0.6);">标题字重 700/800/900 随机<br>卡片圆角 16/20/24px<br>卡片内边距 ±8px<br>元素间距 ±4px</div>
+        </div>
+        <div>
+          <div style="color:#f87171;font-weight:700;margin-bottom:6px;">🎭 转场组合</div>
+          <div style="color:rgba(255,255,255,0.6);">从 5 种转场中随机选 2-3 种<br>转场时长 0.4-0.8s 微调<br>入场方向随机</div>
+        </div>
+        <div>
+          <div style="color:#06b6d4;font-weight:700;margin-bottom:6px;">🌊 动画时序</div>
+          <div style="color:rgba(255,255,255,0.6);">元素入场延迟 ±0.1s 抖动<br>Spring damping 10-15 随机<br>stagger 间隔 0.1-0.2s</div>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding:12px;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);border-radius:8px;color:rgba(255,255,255,0.7);font-size:12px;">
+        <strong>实现方式：</strong>以 ticker + date 为 seed 生成确定性随机数，同一报告重复生成结果一致，不同报告视觉必然不同。
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>📝 Scriptwriter Agent 升级</h3>
+  <div class="split">
+    <div class="mockup">
+      <div class="mockup-header">当前：固定 8 段</div>
+      <div class="mockup-body" style="font-size:12px;line-height:1.8;padding:12px;color:rgba(255,255,255,0.5);">
+        <div>1. title</div>
+        <div>2. disclaimer</div>
+        <div>3. rating</div>
+        <div>4. point ×3</div>
+        <div>5. conclusion</div>
+        <div>6. follow</div>
+        <div style="margin-top:8px;color:#f87171;">❌ 每期结构完全相同</div>
+        <div style="color:#f87171;">❌ 无论内容多少都是 3 个论点</div>
+        <div style="color:#f87171;">❌ 无数据对比类型</div>
+      </div>
+    </div>
+    <div class="mockup">
+      <div class="mockup-header">升级：动态 5-10 段</div>
+      <div class="mockup-body" style="font-size:12px;line-height:1.8;padding:12px;">
+        <div style="color:#4ade80;">1. title <span style="color:rgba(255,255,255,0.3);">(必选)</span></div>
+        <div style="color:#4ade80;">2. disclaimer <span style="color:rgba(255,255,255,0.3);">(必选)</span></div>
+        <div style="color:#4ade80;">3. rating <span style="color:rgba(255,255,255,0.3);">(必选)</span></div>
+        <div style="color:#fbbf24;">4-N. 动态内容段 <span style="color:rgba(255,255,255,0.3);">(2-6 段)</span></div>
+        <div style="color:rgba(255,255,255,0.5);padding-left:16px;font-size:11px;">
+          point — 核心论点<br>
+          comparison — 牛熊对比/多空PK<br>
+          data-highlight — 关键数据大字报<br>
+          risk-matrix — 风险概率矩阵<br>
+          quote — 分析师金句引用<br>
+          catalyst — 催化剂/事件时间线
+        </div>
+        <div style="color:#4ade80;">N+1. conclusion <span style="color:rgba(255,255,255,0.3);">(必选)</span></div>
+        <div style="color:#4ade80;">N+2. follow <span style="color:rgba(255,255,255,0.3);">(必选)</span></div>
+        <div style="margin-top:8px;color:#4ade80;">✅ 段数 5-10 由内容决定</div>
+        <div style="color:#4ade80;">✅ 6 种内容类型自由组合</div>
+        <div style="color:#4ade80;">✅ 每期结构自然不同</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>🆕 新增幻灯片类型</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div class="mockup">
+      <div class="mockup-header">comparison — 牛熊对比</div>
+      <div class="mockup-body" style="padding:16px;text-align:center;">
+        <div style="display:flex;gap:12px;justify-content:center;">
+          <div style="flex:1;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.2);border-radius:12px;padding:12px;">
+            <div style="color:#4ade80;font-size:14px;font-weight:700;">🐂 看多</div>
+            <div style="color:rgba(255,255,255,0.5);font-size:11px;margin-top:6px;">云增长 +32%<br>AI 领先地位<br>分红增加</div>
+          </div>
+          <div style="flex:1;background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.2);border-radius:12px;padding:12px;">
+            <div style="color:#f87171;font-size:14px;font-weight:700;">🐻 看空</div>
+            <div style="color:rgba(255,255,255,0.5);font-size:11px;margin-top:6px;">估值过高<br>监管风险<br>增速放缓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mockup">
+      <div class="mockup-header">data-highlight — 数据大字报</div>
+      <div class="mockup-body" style="padding:16px;text-align:center;">
+        <div style="color:rgba(255,255,255,0.4);font-size:11px;">营收同比增长</div>
+        <div style="color:#4ade80;font-size:48px;font-weight:900;margin:8px 0;">+32.7%</div>
+        <div style="color:rgba(255,255,255,0.5);font-size:12px;">超预期 ↑ 市场预估 +28%</div>
+      </div>
+    </div>
+    <div class="mockup">
+      <div class="mockup-header">catalyst — 催化剂时间线</div>
+      <div class="mockup-body" style="padding:16px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#8b5cf6;"></div>
+          <div style="flex:1;height:1px;background:rgba(255,255,255,0.1);"></div>
+          <div style="color:rgba(255,255,255,0.5);font-size:10px;">4月15日 — 财报发布</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;"></div>
+          <div style="flex:1;height:1px;background:rgba(255,255,255,0.1);"></div>
+          <div style="color:rgba(255,255,255,0.5);font-size:10px;">5月1日 — Build 大会</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#4ade80;"></div>
+          <div style="flex:1;height:1px;background:rgba(255,255,255,0.1);"></div>
+          <div style="color:rgba(255,255,255,0.5);font-size:10px;">6月 — 反垄断裁决</div>
+        </div>
+      </div>
+    </div>
+    <div class="mockup">
+      <div class="mockup-header">quote — 金句引用</div>
+      <div class="mockup-body" style="padding:16px;text-align:center;">
+        <div style="color:rgba(139,92,246,0.6);font-size:36px;line-height:1;">"</div>
+        <div style="color:#e8ecff;font-size:14px;font-style:italic;line-height:1.6;margin:4px 0;">风险收益比是投资的核心<br>当下行远超上行时<br>最好的操作就是离场</div>
+        <div style="color:rgba(255,255,255,0.3);font-size:11px;margin-top:8px;">— 风险评估团队</div>
+      </div>
+    </div>
+  </div>
+</div>

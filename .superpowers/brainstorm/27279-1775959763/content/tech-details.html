@@ -1,0 +1,108 @@
+<h2>技术实现 & 编码质量</h2>
+<p class="subtitle">Remotion 项目结构、编码参数、音频同步方案</p>
+
+<div class="section">
+  <h3>📁 Remotion 项目结构</h3>
+  <div class="mockup">
+    <div class="mockup-header">plugins/gv/remotion/</div>
+    <div class="mockup-body" style="font-family:monospace;font-size:12px;line-height:1.9;padding:16px;">
+      <div style="color:#fbbf24;">package.json</div>
+      <div style="color:#fbbf24;">tsconfig.json</div>
+      <div style="color:#fbbf24;">remotion.config.ts          <span style="color:rgba(255,255,255,0.3);">← 编码参数、分辨率</span></div>
+      <div style="color:#8b5cf6;">src/</div>
+      <div style="color:rgba(255,255,255,0.6);padding-left:16px;">Root.tsx                   <span style="color:rgba(255,255,255,0.3);">← Composition 入口</span></div>
+      <div style="color:rgba(255,255,255,0.6);padding-left:16px;">ShortVideo.tsx              <span style="color:rgba(255,255,255,0.3);">← 主组件：编排所有场景</span></div>
+      <div style="color:#4ade80;padding-left:16px;">scenes/</div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">TitleScene.tsx</div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">DisclaimerScene.tsx</div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">RatingScene.tsx</div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">PointScene.tsx</div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">ComparisonScene.tsx</div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">DataHighlightScene.tsx</div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">CatalystScene.tsx</div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">QuoteScene.tsx</div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">ConclusionScene.tsx</div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">FollowScene.tsx</div>
+      <div style="color:#3b82f6;padding-left:16px;">components/</div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">GlassCard.tsx              <span style="color:rgba(255,255,255,0.3);">← 毛玻璃卡片</span></div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">FloatingOrbs.tsx           <span style="color:rgba(255,255,255,0.3);">← 漂移光斑</span></div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">CountUp.tsx                <span style="color:rgba(255,255,255,0.3);">← 数字滚动</span></div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">HighlightChip.tsx          <span style="color:rgba(255,255,255,0.3);">← 标签气泡</span></div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">ProgressBar.tsx            <span style="color:rgba(255,255,255,0.3);">← 进度条</span></div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">FilmGrain.tsx              <span style="color:rgba(255,255,255,0.3);">← 噪点纹理叠层</span></div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">Subtitle.tsx               <span style="color:rgba(255,255,255,0.3);">← 字幕渲染</span></div>
+      <div style="color:#f87171;padding-left:16px;">theme/</div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">variants.ts                <span style="color:rgba(255,255,255,0.3);">← 随机变体生成器</span></div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">colors.ts                  <span style="color:rgba(255,255,255,0.3);">← 色彩系统</span></div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">transitions.ts             <span style="color:rgba(255,255,255,0.3);">← 转场效果库</span></div>
+      <div style="color:#06b6d4;padding-left:16px;">utils/</div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">audio-sync.ts              <span style="color:rgba(255,255,255,0.3);">← TTS 时间戳映射</span></div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">noise.ts                   <span style="color:rgba(255,255,255,0.3);">← Perlin noise</span></div>
+      <div style="color:rgba(255,255,255,0.5);padding-left:32px;">seeded-random.ts           <span style="color:rgba(255,255,255,0.3);">← 确定性随机</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>🎥 编码参数 — 消除色带</h3>
+  <div class="mockup">
+    <div class="mockup-header">remotion.config.ts 关键配置</div>
+    <div class="mockup-body" style="font-family:monospace;font-size:12px;line-height:1.9;padding:16px;">
+      <div style="color:rgba(255,255,255,0.4);">// 分辨率</div>
+      <div>width: <span style="color:#4ade80;">1080</span></div>
+      <div>height: <span style="color:#4ade80;">1920</span></div>
+      <div>fps: <span style="color:#4ade80;">30</span>  <span style="color:rgba(255,255,255,0.3);">← 从 24 提升到 30，动画更流畅</span></div>
+      <div style="margin-top:8px;color:rgba(255,255,255,0.4);">// 编码 — 10-bit H.265 消除色带</div>
+      <div>codec: <span style="color:#4ade80;">"h265"</span></div>
+      <div>pixelFormat: <span style="color:#4ade80;">"yuv420p10le"</span>  <span style="color:rgba(255,255,255,0.3);">← 10-bit 色深</span></div>
+      <div>crf: <span style="color:#4ade80;">18</span>  <span style="color:rgba(255,255,255,0.3);">← 高质量 (越低越好，18 是视觉无损)</span></div>
+      <div style="margin-top:8px;color:rgba(255,255,255,0.4);">// 抖音兼容性备选 (如遇兼容问题)</div>
+      <div style="color:rgba(255,255,255,0.4);">// codec: "h264"</div>
+      <div style="color:rgba(255,255,255,0.4);">// pixelFormat: "yuv420p"</div>
+      <div style="color:rgba(255,255,255,0.4);">// crf: 15  ← 高码率 + film grain 弥补 8-bit 色带</div>
+      <div style="margin-top:8px;color:rgba(255,255,255,0.4);">// 音频</div>
+      <div>audioBitrate: <span style="color:#4ade80;">"192k"</span>  <span style="color:rgba(255,255,255,0.3);">← 从 128k 提升</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>🔊 音频同步方案</h3>
+  <div class="mockup">
+    <div class="mockup-header">TTS timestamps → Remotion 帧映射</div>
+    <div class="mockup-body" style="font-family:monospace;font-size:12px;line-height:2;padding:16px;">
+      <div style="color:rgba(255,255,255,0.4);">// 1. Python TTS 生成 timestamps.json (不变)</div>
+      <div>[{text:"微软", offset_ms:350, duration_ms:400}, ...]</div>
+      <div style="margin-top:8px;color:rgba(255,255,255,0.4);">// 2. Python 计算每段 TTS 时长 → 段时间分配</div>
+      <div>sections_timing.json: [{type:"title", start_s:0, end_s:5.2}, ...]</div>
+      <div style="margin-top:8px;color:rgba(255,255,255,0.4);">// 3. Remotion 读取 timing → 每个 scene 知道自己的帧范围</div>
+      <div style="color:#4ade80;">const frame = useCurrentFrame()</div>
+      <div style="color:#4ade80;">const {fps} = useVideoConfig()</div>
+      <div style="color:#4ade80;">const progress = frame / (scene.durationFrames)</div>
+      <div style="margin-top:8px;color:rgba(255,255,255,0.4);">// 4. 字幕：Remotion 内置渲染，不再用 ASS</div>
+      <div style="color:#4ade80;">timestamps → Subtitle 组件 → 逐字高亮</div>
+      <div style="margin-top:8px;color:rgba(255,255,255,0.4);">// 5. 音频：直接引入 mp3 作为 Remotion Audio</div>
+      <div style="color:#4ade80;">&lt;Audio src={audioUrl} /&gt;</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>🔄 Python → Remotion 调用流程</h3>
+  <div class="mockup">
+    <div class="mockup-header">composer.py 中的新 _compose_short_v3()</div>
+    <div class="mockup-body" style="font-family:monospace;font-size:12px;line-height:2;padding:16px;">
+      <div style="color:rgba(255,255,255,0.4);"># 1. 准备输入 JSON</div>
+      <div>input_data = {sections, timestamps, audio_path, seed}</div>
+      <div>write_json(tmp / "input.json", input_data)</div>
+      <div style="margin-top:8px;color:rgba(255,255,255,0.4);"># 2. 调用 Remotion CLI 渲染</div>
+      <div>npx remotion render ShortVideo \</div>
+      <div>  --props=tmp/input.json \</div>
+      <div>  --output=output.mp4 \</div>
+      <div>  --codec=h265 \</div>
+      <div>  --crf=18</div>
+      <div style="margin-top:8px;color:rgba(255,255,255,0.4);"># 3. 返回结果 (和现有接口一致)</div>
+      <div>return {"video_path": ..., "duration_seconds": ...}</div>
+    </div>
+  </div>
+</div>

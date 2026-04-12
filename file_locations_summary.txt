@@ -1,0 +1,209 @@
+================================================================================
+GENERATE_VIDEO MCP IMPLEMENTATION - FILE LOCATIONS & LINE NUMBERS
+================================================================================
+
+## CORE MCP TOOL REGISTRATION
+📍 File: ./plugins/gv/src/index.ts
+   Line:  82-94  (generate_video MCP tool registration)
+   Line:  5-9    (imports for all tools)
+
+## TYPESCRIPT LAYER (TypeScript ↔ Python Bridge)
+
+📍 File: ./plugins/gv/src/tools/generate.ts
+   Line:  1-18   (generateVideo() function - main handler)
+   Line:  3-6    (GenerateVideoParams interface)
+   Line:  8-17   (async function implementation)
+
+📍 File: ./plugins/gv/src/tools/call-python.ts
+   Line:  9-30   (callPython() - spawns Python process via 'uv run')
+   Line:  14-29  (execFile options & execution)
+
+## PYTHON LAYER - Entry Points
+
+📍 File: ./plugins/gv/python/__main__.py
+   Line:  136-177 (main() - CLI argument parser setup)
+   Line:  169-173 (parser.add_subcommand("generate"))
+   Line:  60-134  (cmd_generate() - main pipeline orchestrator for "generate" command)
+   Line:  78-103  (Full version pipeline)
+   Line:  105-131 (Short version pipeline)
+
+## PIPELINE STEP 1: MARKDOWN PARSING
+
+📍 File: ./plugins/gv/python/md_parser.py
+   Line:  7-153   (parse_report() - parses *_zh.md files)
+   Line:  13-21   (Extract metadata from filename & first H1)
+   Line:  35-142  (Parse document into sections)
+   Line:  145-154 (Return structure)
+   Line:  170-217 (_extract_key_sections() - selects sections for short video)
+
+   ✓ Detects v1 format: has "text" field, no "headline"/"body"/"tts_text"
+   ✓ Output: {ticker, date, sections, key_sections}
+
+## PIPELINE STEP 2A: TEXT-TO-SPEECH
+
+📍 File: ./plugins/gv/python/tts_engine.py
+   Line:  11-73   (generate_tts() - edge-tts wrapper)
+   Line:  37-51   (Stream audio + extract word boundaries)
+   Line:  53-60   (Write timestamps.json + subtitles.srt)
+   Line:  62-73   (Return output metadata)
+
+   ✓ Called from __main__.py:80-85 (full) and 107-113 (short)
+   ✓ Outputs: audio.mp3, timestamps.json, subtitles.srt
+
+## PIPELINE STEP 3: FRAME RENDERING
+
+📍 File: ./plugins/gv/python/renderer.py
+   Line:  97-121  (render_frames() - main dispatcher)
+   Line:  118-121 (Branch by layout: full vs short)
+
+   FULL VERSION:
+   📍 Line:  124-241 (_render_full() - single scroll image)
+   Line:  134-166 (First pass: calculate heights, build y_map)
+   Line:  170-227 (Second pass: draw PIL Image)
+   Line:  230-241 (Save scroll.png + y_map.json)
+
+   SHORT VERSION (DISPATCHER):
+   📍 Line:  287-292 (_render_short() - route to v2 or legacy)
+   Line:  244-250 (_is_v2_format() - detects headline/body/tts_text fields)
+
+   SHORT VERSION (V2 FORMAT - Playwright):
+   📍 Line:  295-363 (_render_short_v2() - async Playwright renderer)
+   Line:  244-250 (V2 format detection function)
+   Line:  252-285 (_build_template_context() - build Jinja2 context)
+   Line:  327-333 (Template selection by type)
+   Line:  335-344 (Template rendering + HTML path conversion)
+   Line:  346-356 (Playwright screenshot loop)
+   Line:  359-361 (Save _sections.json for composer)
+
+   SHORT VERSION (LEGACY FORMAT - Pillow):
+   📍 Line:  366-416 (_render_short_legacy() - fallback Pillow renderer)
+   Line:  373-414 (Per-slide PIL Image generation)
+
+   ✓ Full output: scroll.png + y_map.json
+   ✓ Short v2 output: slide_00.png, slide_01.png, ... + _sections.json
+   ✓ Short legacy output: slide_00.png, slide_01.png, ...
+
+## PIPELINE STEP 4: VIDEO COMPOSITION
+
+📍 File: ./plugins/gv/python/composer.py
+   Line:  29-76   (compose_video() - main dispatcher)
+
+   FULL VERSION:
+   📍 Line:  79-162  (_compose_full() - MoviePy scroll + audio)
+   Line:  94-98   (Load y_map.json for section positions)
+   Line:  111-120 (Build keyframes from y_map)
+   Line:  125-137 (Keyframe interpolation function)
+   Line:  142-158 (Per-frame rendering with NumPy)
+
+   SHORT VERSION (DETECTION):
+   📍 Line:  165-232 (_compose_short() - route to v3/v2/legacy)
+   Line:  180-182 (Check for _sections.json to detect v2)
+   Line:  185-211 (Try Remotion v3 first if available)
+   Line:  213-230 (Fall back to v2 FFmpeg)
+   Line:  231-232 (Fall back to legacy)
+
+   SHORT VERSION (V2 FFmpeg):
+   📍 Line:  465-541 (_compose_short_v2() - FFmpeg Ken Burns + xfade)
+   Line:  255-296 (_calc_slide_durations() - proportional by tts_text length)
+   Line:  480-487 (Build transitions list)
+   Line:  489-491 (Calculate slide durations)
+   Line:  494-501 (Generate Ken Burns zoompan segments)
+   Line:  504-506 (Merge with xfade)
+   Line:  509-534 (ASS subtitles + audio overlay)
+
+   SHORT VERSION (LEGACY MoviePy):
+   📍 Line:  235-252 (_compose_short_legacy() - concatenate slides with fade)
+
+   ✓ Full output: {ticker}_{date}_full.mp4
+   ✓ Short output: {ticker}_{date}_short.mp4
+
+## CONFIGURATION & CONSTANTS
+
+📍 File: ./plugins/gv/python/config.py
+   Line:  6-9     (Output directory paths)
+   Line:  11-42   (Video dimensions, colors, typography)
+   Line:  43-51   (TTS settings)
+   Line:  52-90   (Short v2 rendering & FFmpeg config)
+   Line:  63-70   (FFmpeg path resolution)
+   Line:  72-90   (Transitions & Ken Burns settings per type)
+
+## VIDEO-SCRIPTWRITER AGENT (Non-Code Specification)
+
+📍 File: ./agents/video-scriptwriter.md
+   Line:  1-219   (Complete agent specification)
+   Line:  17-84   (Output JSON format example)
+   Line:  87-154  (Extended content types: comparison, data-highlight, catalyst, quote, risk-matrix)
+   Line:  156-191 (Field reference table & creative rules)
+   Line:  194-215 (Type selection guidelines)
+
+   ✓ INTEGRATES VIA: renderer.py _is_v2_format() detection (line 244-250)
+   ✓ FLOW: parse_report (v1) → [video-scriptwriter NOT YET CALLED] → render_frames
+   ✓ MISSING: Code to call LLM to convert v1→v2 sections
+
+## OUTPUT STRUCTURE
+
+📍 File: ./plugins/gv/python/__main__.py
+   Line:  76      (results = {} dict initialized)
+   Line:  102-103 (Full video results)
+   Line:  130-131 (Short video results)
+   Line:  133     (JSON print to stdout)
+
+   Returns:
+   {
+     "full_video_path": "gen-video/output/{ticker}_{date}_full.mp4",
+     "full_srt_path": "gen-video/temp/{ticker}_{date}_full/subtitles.srt",
+     "short_video_path": "gen-video/output/{ticker}_{date}_short.mp4",
+     "short_srt_path": "gen-video/temp/{ticker}_{date}_short/subtitles.srt"
+   }
+
+================================================================================
+CALL CHAIN SUMMARY
+================================================================================
+
+MCP Tool (index.ts:82-94)
+  ↓ (via callPython)
+TypeScript Handler (generate.ts:8-17)
+  ↓ (execFile with uv run)
+Python CLI (callPython.ts:9-30)
+  ↓
+Python Main (__main__.py:60-134)
+  ├─ parse_report (md_parser.py:7-153)
+  ├─ generate_tts (tts_engine.py:11-73)
+  ├─ render_frames (renderer.py:97-121)
+  │  ├─ _render_full (renderer.py:124-241)
+  │  └─ _render_short (renderer.py:287-292)
+  │     ├─ _render_short_v2 (renderer.py:295-363) [Playwright]
+  │     └─ _render_short_legacy (renderer.py:366-416) [Pillow]
+  └─ compose_video (composer.py:29-76)
+     ├─ _compose_full (composer.py:79-162) [MoviePy]
+     └─ _compose_short (composer.py:165-232)
+        ├─ _compose_short_v3 (composer.py:565-600) [Remotion]
+        ├─ _compose_short_v2 (composer.py:465-541) [FFmpeg]
+        └─ _compose_short_legacy (composer.py:235-252) [MoviePy]
+
+================================================================================
+KEY DETECTION LOGIC
+================================================================================
+
+V2 Format Detection (renderer.py:244-250):
+  if section has "headline" AND "tts_text" fields → V2 FORMAT
+    → Use Playwright + HTML templates
+    → Use FFmpeg Ken Burns + xfade composition
+  else → V1 FORMAT (legacy)
+    → Use PIL Pillow
+    → Use MoviePy simple fade
+
+Slide Duration Calculation (composer.py:255-296):
+  if sections have "tts_text" field:
+    → Proportional: len(tts_text) / total_chars * duration
+  else:
+    → Equal: duration / num_slides
+
+Short Video Detection (composer.py:180-182):
+  if _sections.json exists in frames_dir → V2 FORMAT
+    → Try Remotion v3
+    → Fallback to FFmpeg v2
+  else → V1 FORMAT
+    → Use MoviePy legacy
+
+================================================================================

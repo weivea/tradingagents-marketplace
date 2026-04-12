@@ -1,0 +1,88 @@
+<h2>视频优化方案对比</h2>
+<p class="subtitle">三种技术路线，解决画面静态、模板化、色带问题</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Remotion 全动效方案</h3>
+      <p>用 React 组件构建每一帧，支持元素级动画（数字滚动、标签飞入、图表绘制、进度条动画）。原生支持 10-bit 色深，彻底解决色带问题。</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>优势</h4>
+          <ul>
+            <li>动画质量最高，类似 After Effects 效果</li>
+            <li>React 生态，模板化灵活，每期可随机配色/布局</li>
+            <li>原生 10-bit + ProRes 支持，彻底解决色带</li>
+            <li>音频帧级同步（useCurrentFrame hook）</li>
+            <li>社区成熟，42.8k stars</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>代价</h4>
+          <ul>
+            <li>需要引入 Node.js/React 技术栈</li>
+            <li>渲染管线需要重写（从 Python 切换到 TS/React）</li>
+            <li>商业使用可能需要 license</li>
+            <li>开发工作量大（2-3 周）</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Playwright CSS 动画捕获方案</h3>
+      <p>在现有 HTML 模板基础上增加 CSS/JS 动画，用 Playwright 录制浏览器页面为视频帧。保持 Python 技术栈不变。</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>优势</h4>
+          <ul>
+            <li>基于现有 HTML/CSS 模板改造，工作量可控</li>
+            <li>保持 Python 技术栈，MCP 工具链不变</li>
+            <li>CSS 动画即可实现飞入、淡出、数字滚动等</li>
+            <li>开发周期短（1-2 周）</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>代价</h4>
+          <ul>
+            <li>仅 8-bit 色深，色带问题需要用 dithering 缓解</li>
+            <li>复杂动画受浏览器性能限制</li>
+            <li>逐帧截图渲染速度较慢</li>
+            <li>音频同步需要额外处理</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Remotion + 现有管线混合方案</h3>
+      <p>仅 short 版本切换到 Remotion（动画质量要求高），full 版本保持现有 MoviePy 管线。渐进式迁移，先解决最紧迫的短视频质量问题。</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>优势</h4>
+          <ul>
+            <li>聚焦短视频质量（抖音核心场景）</li>
+            <li>full 版本无需改动，风险可控</li>
+            <li>渐进式引入 Remotion，学习成本分散</li>
+            <li>开发周期适中（1.5-2 周）</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>代价</h4>
+          <ul>
+            <li>维护两套渲染管线（Python + React）</li>
+            <li>仍需引入 Node.js 依赖</li>
+            <li>full 版本画质问题暂未解决</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

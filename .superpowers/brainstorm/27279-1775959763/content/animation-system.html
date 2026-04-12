@@ -1,0 +1,103 @@
+<h2>动画系统设计</h2>
+<p class="subtitle">每种幻灯片类型的动画编排方案。时间轴从左到右，元素依次出场。</p>
+
+<div class="section">
+  <h3>🎬 Title Slide — 标题页动画 (约 5-8 秒)</h3>
+  <div class="mockup">
+    <div class="mockup-header">动画时间轴</div>
+    <div class="mockup-body" style="font-family:monospace;font-size:13px;line-height:2;padding:16px;">
+      <div><span style="color:#8b5cf6;">0.0s</span> ─ 背景渐变从黑色淡入 + 光斑开始漂移</div>
+      <div><span style="color:#8b5cf6;">0.3s</span> ─ 网格线从中心向外扩散 (scale 0→1, opacity 0→0.06)</div>
+      <div><span style="color:#8b5cf6;">0.6s</span> ─ 上方装饰线从中心向两侧展开 (width 0→120px)</div>
+      <div><span style="color:#8b5cf6;">0.9s</span> ─ "今日交易研报" 标签逐字打出 (typewriter effect)</div>
+      <div><span style="color:#8b5cf6;">1.5s</span> ─ 公司名大标题从底部弹入 (spring, damping: 12)</div>
+      <div><span style="color:#8b5cf6;">2.2s</span> ─ 日期文字淡入 (opacity 0→1, 0.5s)</div>
+      <div><span style="color:#8b5cf6;">2.8s</span> ─ 下方装饰线展开</div>
+      <div><span style="color:#8b5cf6;">3.0s</span> ─ 品牌信息淡入底部</div>
+      <div style="margin-top:8px;color:rgba(255,255,255,0.4);font-size:11px;">持续：光斑缓慢随机漂移 (整个视频期间)</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>📊 Rating Slide — 评级页动画 (约 6-10 秒)</h3>
+  <div class="mockup">
+    <div class="mockup-header">动画时间轴</div>
+    <div class="mockup-body" style="font-family:monospace;font-size:13px;line-height:2;padding:16px;">
+      <div><span style="color:#3b82f6;">0.0s</span> ─ 页面从右侧滑入 (translateX 100%→0, spring)</div>
+      <div><span style="color:#3b82f6;">0.3s</span> ─ "最终评级" 标签淡入</div>
+      <div><span style="color:#3b82f6;">0.6s</span> ─ 毛玻璃卡片从缩小弹出 (scale 0.8→1, spring)</div>
+      <div><span style="color:#3b82f6;">1.0s</span> ─ 评级文字放大弹入 (scale 0→1, overshoot)</div>
+      <div><span style="color:#3b82f6;">1.0s</span> ─ 评级颜色光晕脉冲 (买入=绿色/卖出=红色 glow pulse)</div>
+      <div><span style="color:#3b82f6;">1.8s</span> ─ highlight chips 依次飞入 (stagger 0.15s, 从左)</div>
+      <div><span style="color:#3b82f6;">2.5s</span> ─ body 文字淡入</div>
+      <div><span style="color:#3b82f6;">3.0s</span> ─ metrics 网格逐个翻入 (stagger 0.2s, flip-Y)</div>
+      <div><span style="color:#3b82f6;">3.0s</span> ─ 数字从 0 滚动到目标值 (countUp animation)</div>
+      <div><span style="color:#3b82f6;">4.5s</span> ─ 进度条从左向右填充</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>💡 Point Slide — 论点页动画 (约 8-12 秒)</h3>
+  <div class="mockup">
+    <div class="mockup-header">动画时间轴</div>
+    <div class="mockup-body" style="font-family:monospace;font-size:13px;line-height:2;padding:16px;">
+      <div><span style="color:#4ade80;">0.0s</span> ─ 序号圆圈从缩放弹入 (scale 0→1, bounce)</div>
+      <div><span style="color:#4ade80;">0.3s</span> ─ 毛玻璃卡片从底部滑入 (translateY 60px→0)</div>
+      <div><span style="color:#4ade80;">0.6s</span> ─ 标题文字淡入 + 左侧装饰线展开</div>
+      <div><span style="color:#4ade80;">1.0s</span> ─ highlight chips 依次弹入 (stagger 0.12s)</div>
+      <div><span style="color:#4ade80;">1.5s</span> ─ body 正文逐行淡入 (stagger 0.1s per line)</div>
+      <div><span style="color:#4ade80;">2.5s</span> ─ sub_body 淡入 (opacity, 0.5s)</div>
+      <div><span style="color:#4ade80;">3.0s</span> ─ metrics 卡片依次滑入 (stagger 0.2s)</div>
+      <div><span style="color:#4ade80;">3.0s</span> ─ metric 数字 countUp 动画</div>
+      <div><span style="color:#4ade80;">4.5s</span> ─ 进度条更新</div>
+      <div style="margin-top:8px;color:rgba(255,255,255,0.4);font-size:11px;">变体：奇数论点从左入场，偶数论点从右入场</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>🎯 Conclusion Slide — 结论页动画 (约 5-7 秒)</h3>
+  <div class="mockup">
+    <div class="mockup-header">动画时间轴</div>
+    <div class="mockup-body" style="font-family:monospace;font-size:13px;line-height:2;padding:16px;">
+      <div><span style="color:#fbbf24;">0.0s</span> ─ 背景光斑聚拢到中心 (收缩动画)</div>
+      <div><span style="color:#fbbf24;">0.5s</span> ─ 装饰线从中心展开</div>
+      <div><span style="color:#fbbf24;">0.8s</span> ─ "结论" 标签淡入</div>
+      <div><span style="color:#fbbf24;">1.2s</span> ─ 结论标题从模糊到清晰 (blur 20px→0 + scale 1.1→1)</div>
+      <div><span style="color:#fbbf24;">2.0s</span> ─ chips 淡入</div>
+      <div><span style="color:#fbbf24;">2.5s</span> ─ body 文字淡入</div>
+      <div><span style="color:#fbbf24;">3.5s</span> ─ 进度条填充到 100%</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>🔄 页面间转场</h3>
+  <div class="mockup">
+    <div class="mockup-header">转场效果库 (随机选择)</div>
+    <div class="mockup-body" style="font-family:monospace;font-size:13px;line-height:2;padding:16px;">
+      <div><strong style="color:#e8ecff;">fade-through</strong> ─ 当前页淡出 + 下页淡入 (经典, 0.5s)</div>
+      <div><strong style="color:#e8ecff;">slide-left</strong> ─ 整页向左推出 (0.6s, spring)</div>
+      <div><strong style="color:#e8ecff;">zoom-dissolve</strong> ─ 当前页放大模糊 + 下页从小到大 (0.7s)</div>
+      <div><strong style="color:#e8ecff;">wipe-up</strong> ─ 下页从底部擦出 (0.5s)</div>
+      <div><strong style="color:#e8ecff;">morph-blur</strong> ─ 双页同时模糊交叉溶解 (0.6s)</div>
+      <div style="margin-top:8px;color:rgba(255,255,255,0.4);font-size:11px;">每期视频从库中随机选择 2-3 种转场组合，避免重复</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>✨ 持续动效层 (全程运行)</h3>
+  <div class="mockup">
+    <div class="mockup-header">背景动态元素</div>
+    <div class="mockup-body" style="font-family:monospace;font-size:13px;line-height:2;padding:16px;">
+      <div><strong style="color:#e8ecff;">光斑漂移</strong> ─ 3-5 个模糊光斑在背景缓慢随机移动 (Perlin noise 路径)</div>
+      <div><strong style="color:#e8ecff;">光斑呼吸</strong> ─ 光斑大小周期性微缩放 (±10%, 3-5s 周期)</div>
+      <div><strong style="color:#e8ecff;">噪点纹理</strong> ─ 极淡的 film grain overlay (opacity 0.02-0.04)</div>
+      <div><strong style="color:#e8ecff;">渐变偏移</strong> ─ 背景渐变角度缓慢旋转 (每 20s 转 5°)</div>
+      <div style="margin-top:8px;color:rgba(255,255,255,0.4);font-size:11px;">噪点纹理同时解决 10-bit 下采样后残留的 banding 问题 (dithering 效果)</div>
+    </div>
+  </div>
+</div>
