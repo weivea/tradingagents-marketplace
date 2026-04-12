@@ -88,3 +88,9 @@ SHORT_V2_KENBURNS: dict[str, tuple[float, float]] = {
     "conclusion": (1.0, 1.03),
     "follow":     (1.0, 1.0),   # static
 }
+
+# --- Short V3: Remotion rendering ---
+REMOTION_DIR = Path(__file__).resolve().parent.parent / "remotion"
+REMOTION_FPS = 30
+REMOTION_CODEC = "h265"
+REMOTION_CRF = 18

@@ -22,6 +22,7 @@ from .config import (
     ACCENT_COLOR,
     FFMPEG_PATH, SHORT_V2_OUTPUT_WIDTH, SHORT_V2_OUTPUT_HEIGHT,
     SHORT_V2_TRANSITIONS, SHORT_V2_KENBURNS,
+    REMOTION_DIR, REMOTION_FPS, REMOTION_CODEC, REMOTION_CRF,
 )
 
 
@@ -178,6 +179,29 @@ def _compose_short(
     # Detect v2 by checking for _sections.json (written by v2 renderer)
     sections_json = frames_path / "_sections.json"
     is_v2 = sections_json.exists()
+
+    # Try Remotion v3 first if available
+    if _is_remotion_available() and is_v2:
+        import re
+        sections = []
+        if sections_json.exists():
+            with open(sections_json, "r", encoding="utf-8") as f:
+                sections = json.load(f)
+
+        seed_match = re.search(r"([A-Z]+_\d{4}-\d{2}-\d{2})", str(frames_path))
+        seed = seed_match.group(1) if seed_match else "default"
+
+        output_path_v3 = str(frames_path / "_v3_composed.mp4")
+        _compose_short_v3(
+            sections=sections,
+            timestamps=timestamps,
+            audio_path=audio_file_path,
+            total_duration=duration,
+            output_path=output_path_v3,
+            seed=seed,
+        )
+        from moviepy import VideoFileClip
+        return VideoFileClip(output_path_v3)
 
     if is_v2:
         # Read the sections JSON to get tts_text for duration calc
@@ -507,4 +531,65 @@ def _compose_short_v2(
         Path(seg).unlink(missing_ok=True)
     Path(merged_path).unlink(missing_ok=True)
     Path(ass_path).unlink(missing_ok=True)
+
+
+def _build_remotion_input(
+    sections: list[dict],
+    timestamps: list[dict],
+    audio_path: str,
+    total_duration: float,
+    seed: str,
+) -> dict:
+    """Build the input JSON structure for Remotion rendering."""
+    return {
+        "sections": sections,
+        "timestamps": timestamps,
+        "audioPath": audio_path,
+        "totalDuration": total_duration,
+        "seed": seed,
+    }
+
+
+def _is_remotion_available() -> bool:
+    """Check if the Remotion project is set up (node_modules exists)."""
+    return (REMOTION_DIR / "node_modules").is_dir()
+
+
+def _compose_short_v3(
+    sections: list[dict],
+    timestamps: list[dict],
+    audio_path: str,
+    total_duration: float,
+    output_path: str,
+    seed: str,
+) -> None:
+    """Compose short video using Remotion React rendering."""
+    tmp_dir = Path(output_path).parent
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+
+    # 1. Build and write input JSON
+    input_data = _build_remotion_input(sections, timestamps, audio_path, total_duration, seed)
+    input_path = tmp_dir / "_remotion_input.json"
+    with open(input_path, "w", encoding="utf-8") as f:
+        json.dump(input_data, f, ensure_ascii=False)
+
+    # 2. Call Remotion CLI
+    cmd = [
+        "npx", "remotion", "render",
+        "ShortVideo",
+        "--props", str(input_path.resolve()),
+        "--output", str(Path(output_path).resolve()),
+        "--codec", REMOTION_CODEC,
+        "--crf", str(REMOTION_CRF),
+    ]
+    subprocess.run(
+        cmd,
+        cwd=str(REMOTION_DIR),
+        check=True,
+        capture_output=True,
+        timeout=300,
+    )
+
+    # 3. Cleanup temp input
+    input_path.unlink(missing_ok=True)
 
