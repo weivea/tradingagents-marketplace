@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "paper_trading": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["./plugins/paper_trading_mcp/dist/index.js"],
+      "env": {}
+    }
+  }
+}
