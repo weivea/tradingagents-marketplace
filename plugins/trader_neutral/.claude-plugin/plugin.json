@@ -1,0 +1,6 @@
+{
+  "name": "trader_neutral",
+  "description": "Balanced paper-trading agent — combines fundamentals, technicals, news. Moderate position sizing, mix of market and limit orders. Also writes the daily discussion closing summary.",
+  "version": "0.1.0",
+  "author": { "name": "TauricResearch" }
+}
