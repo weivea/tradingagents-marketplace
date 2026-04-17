@@ -1,0 +1,6 @@
+{
+  "name": "trader_conservative",
+  "description": "Conservative paper-trading agent — deep-value focus, keeps lots of cash, uses limit orders exclusively, tight stops. Trades via cn_mcp / t_mcp data and paper_trading_mcp execution.",
+  "version": "0.1.0",
+  "author": { "name": "TauricResearch" }
+}
