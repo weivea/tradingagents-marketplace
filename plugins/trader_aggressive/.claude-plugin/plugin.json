@@ -1,0 +1,6 @@
+{
+  "name": "trader_aggressive",
+  "description": "Aggressive paper-trading agent — chases momentum, tolerates drawdowns, favors market orders and high concentration. Trades via cn_mcp / t_mcp data and paper_trading_mcp execution.",
+  "version": "0.1.0",
+  "author": { "name": "TauricResearch" }
+}
