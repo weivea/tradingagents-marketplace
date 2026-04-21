@@ -90,10 +90,15 @@ def _sweep_pending(conn: sqlite3.Connection, account_id: str,
             from .orders import _next_business_day
             settle_date = _next_business_day(dt.date.today()).isoformat()
 
+        # Compute realized_pnl for sells using avg_cost BEFORE position mutation.
+        realized_pnl = None
+        if r["side"] == "sell":
+            realized_pnl = (fill_price - pos["avg_cost"]) * r["qty"] - fee
+
         conn.execute(
             """UPDATE orders SET status='filled', filled_price=?, filled_qty=?,
-                   fee=?, filled_at=?, settle_date=? WHERE id=?""",
-            (fill_price, r["qty"], fee, now_iso, settle_date, r["id"]),
+                   fee=?, filled_at=?, settle_date=?, realized_pnl=? WHERE id=?""",
+            (fill_price, r["qty"], fee, now_iso, settle_date, realized_pnl, r["id"]),
         )
         if r["side"] == "buy":
             adjust_cash(conn, account_id, currency, -(r["qty"] * fill_price + fee))

@@ -139,3 +139,25 @@ def test_get_pnl_old_sell_rows_excluded(conn):
     conn.commit()
     pnl = get_pnl(conn, "neutral")
     assert pnl["realized_usd"] == 0.0  # the NULL row was skipped
+
+
+from python.settlement import tick_pending_orders
+
+
+def test_sweep_sell_path_writes_realized_pnl(conn):
+    """Limit-sell triggered by tick_pending_orders must populate realized_pnl."""
+    ensure_account(conn, "neutral")
+    place_order(conn, account_id="neutral", symbol="AAPL", market="US",
+                side="buy", qty=100, order_type="market", ref_price=150.0)
+    # avg_cost = 150.01
+    sell = place_order(conn, account_id="neutral", symbol="AAPL", market="US",
+                       side="sell", qty=100, order_type="limit",
+                       price=160.0, ref_price=150.0)
+    assert sell["status"] == "pending"
+    tick_pending_orders(conn, account_id="neutral", price_map={"AAPL": 161.0})
+    row = conn.execute(
+        "SELECT status, realized_pnl FROM orders WHERE id=?", (sell["order_id"],)
+    ).fetchone()
+    assert row["status"] == "filled"
+    # filled at limit_price=160; realized = (160-150.01)*100 - 1.0 = 998.0
+    assert row["realized_pnl"] == pytest.approx(998.0)
