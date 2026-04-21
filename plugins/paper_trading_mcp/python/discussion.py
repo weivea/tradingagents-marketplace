@@ -29,6 +29,20 @@ def init_discussion(
     date: str, *, pnl_summary: dict[str, float],
     base_dir: Path | None = None, force: bool = False,
 ) -> dict:
+    """Create today's shared discussion markdown file with header + PnL summary.
+
+    pnl_summary keys MUST be one of {"aggressive", "neutral", "conservative"}
+    (no currency suffix). Values are interpreted as daily return PERCENTAGES,
+    e.g. 1.23 renders as "+1.2%", -0.5 renders as "-0.5%".
+    Unknown keys are silently ignored; missing keys are omitted from the header.
+
+    Example:
+        init_discussion("2026-04-21",
+                        pnl_summary={"aggressive": 0.0,
+                                     "neutral": 1.23,
+                                     "conservative": -0.5})
+        # renders: "**今日战绩** · 激进 +0.0% · 中性 +1.2% · 保守 -0.5%"
+    """
     base = base_dir or DEFAULT_BASE
     path = _discussion_path(base, date)
     if path.exists() and not force:

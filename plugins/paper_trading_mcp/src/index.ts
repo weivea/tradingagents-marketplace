@@ -189,7 +189,11 @@ server.registerTool(
 server.registerTool(
   "init_discussion",
   {
-    description: "Create the shared discussion markdown file with header + today's PnL summary.",
+    description:
+      "Create the shared discussion markdown file with header + today's PnL summary. " +
+      "pnl_summary keys must be exactly 'aggressive' | 'neutral' | 'conservative' " +
+      "(no currency suffix). Values are daily return PERCENTAGES " +
+      "(e.g. 1.23 renders as '+1.2%'). Unknown keys are silently ignored.",
     inputSchema: {
       date: z.string(),
       pnl_summary: z.record(z.number()).optional(),
