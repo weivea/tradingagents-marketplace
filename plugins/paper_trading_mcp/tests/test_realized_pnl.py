@@ -161,3 +161,47 @@ def test_sweep_sell_path_writes_realized_pnl(conn):
     assert row["status"] == "filled"
     # filled at limit_price=160; realized = (160-150.01)*100 - 1.0 = 998.0
     assert row["realized_pnl"] == pytest.approx(998.0)
+
+
+from python.accounts import INITIAL_USD
+
+
+def test_equity_identity_after_mixed_sequence(conn):
+    """For any series of fills, realized + unrealized must equal change in total equity."""
+    ensure_account(conn, "neutral")
+    initial_usd = INITIAL_USD
+
+    # Five-step sequence in US market (no T+1 complication):
+    # 1) Buy 100 @ 150
+    # 2) Buy  50 @ 160
+    # 3) Sell 80 @ 170
+    # 4) Buy  30 @ 155
+    # 5) Sell 50 @ 175
+    place_order(conn, account_id="neutral", symbol="AAPL", market="US",
+                side="buy", qty=100, order_type="market", ref_price=150.0)
+    place_order(conn, account_id="neutral", symbol="AAPL", market="US",
+                side="buy", qty=50, order_type="market", ref_price=160.0)
+    place_order(conn, account_id="neutral", symbol="AAPL", market="US",
+                side="sell", qty=80, order_type="market", ref_price=170.0)
+    place_order(conn, account_id="neutral", symbol="AAPL", market="US",
+                side="buy", qty=30, order_type="market", ref_price=155.0)
+    place_order(conn, account_id="neutral", symbol="AAPL", market="US",
+                side="sell", qty=50, order_type="market", ref_price=175.0)
+
+    latest_price = 180.0
+    price_map = {"AAPL": latest_price}
+
+    from python.accounts import get_cash
+    from python.portfolio import get_positions, get_pnl
+
+    cash_now = get_cash(conn, "neutral")["USD"]
+    market_value = sum(p["qty"] * latest_price for p in get_positions(conn, "neutral"))
+    equity_change = (cash_now + market_value) - initial_usd
+
+    pnl = get_pnl(conn, "neutral", price_map=price_map)
+    accounted = pnl["realized_usd"] + pnl["unrealized_usd"]
+
+    assert accounted == pytest.approx(equity_change, abs=1e-6), (
+        f"identity broken: equity_change={equity_change}, "
+        f"realized={pnl['realized_usd']}, unrealized={pnl['unrealized_usd']}"
+    )
