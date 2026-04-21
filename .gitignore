@@ -38,3 +38,4 @@ gen-video/temp/
 gen-video/output/*.mp4
 gen-video/output/*.srt
 plugins/gv/gen-video/temp
+.worktrees/
