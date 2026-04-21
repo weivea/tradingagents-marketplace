@@ -93,3 +93,49 @@ def test_buy_orders_have_null_realized_pnl(conn):
         "SELECT realized_pnl FROM orders WHERE side='buy' ORDER BY id DESC LIMIT 1"
     ).fetchone()
     assert row["realized_pnl"] is None
+
+
+from python.portfolio import get_pnl
+
+
+def test_get_pnl_realized_zero_when_only_buys(conn):
+    ensure_account(conn, "neutral")
+    place_order(conn, account_id="neutral", symbol="600519", market="CN",
+                side="buy", qty=100, order_type="market", ref_price=1500.0)
+    place_order(conn, account_id="neutral", symbol="600519", market="CN",
+                side="buy", qty=100, order_type="market", ref_price=1400.0)
+    pnl = get_pnl(conn, "neutral")
+    assert pnl["realized_cny"] == 0.0
+    assert pnl["realized_hkd"] == 0.0
+    assert pnl["realized_usd"] == 0.0
+
+
+def test_get_pnl_unrealized_uses_fee_capitalized_avg_cost(conn):
+    ensure_account(conn, "neutral")
+    place_order(conn, account_id="neutral", symbol="600519", market="CN",
+                side="buy", qty=100, order_type="market", ref_price=1500.0)
+    place_order(conn, account_id="neutral", symbol="600519", market="CN",
+                side="buy", qty=100, order_type="market", ref_price=1400.0)
+    # avg_cost = 1450.3625; price 1500 → unrealized = (1500-1450.3625)*200 = 9927.5
+    pnl = get_pnl(conn, "neutral", price_map={"600519": 1500.0})
+    assert pnl["unrealized_cny"] == pytest.approx(9927.5)
+
+
+def test_get_pnl_old_sell_rows_excluded(conn):
+    """Sell rows with realized_pnl IS NULL (e.g. pre-migration data) must NOT be summed."""
+    ensure_account(conn, "neutral")
+    place_order(conn, account_id="neutral", symbol="AAPL", market="US",
+                side="buy", qty=100, order_type="market", ref_price=150.0)
+    # Manually insert an OLD-style sell row with NULL realized_pnl
+    conn.execute(
+        """INSERT INTO orders (account_id, symbol, market, side, order_type,
+            qty, price, ref_price, status, filled_price, filled_qty, fee,
+            submitted_at, filled_at, settle_date, realized_pnl)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+        ("neutral", "AAPL", "US", "sell", "market", 50, None, 160.0,
+         "filled", 160.0, 50, 1.0, "2026-01-01T00:00:00", "2026-01-01T00:00:00",
+         None, None),
+    )
+    conn.commit()
+    pnl = get_pnl(conn, "neutral")
+    assert pnl["realized_usd"] == 0.0  # the NULL row was skipped

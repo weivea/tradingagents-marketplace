@@ -60,6 +60,7 @@ def test_pnl_realized_after_round_trip(conn):
     place_order(conn, account_id="aggressive", symbol="AAPL", market="US",
                 side="sell", qty=100, order_type="market", ref_price=160.0)
     pnl = get_pnl(conn, "aggressive")
+    # avg_cost = 150.01 (fee-capitalized); realized = (160-150.01)*100 - 1.0 = 998.0
     assert pnl["realized_usd"] == pytest.approx(998.0)
 
 

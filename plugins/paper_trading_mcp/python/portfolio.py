@@ -59,8 +59,12 @@ def get_pnl(
     conn: sqlite3.Connection, account_id: str,
     date: str | None = None, price_map: dict[str, float] | None = None,
 ) -> dict:
-    q = """SELECT market, side, filled_qty, filled_price, fee
-           FROM orders WHERE account_id=? AND status='filled'"""
+    q = """SELECT market, realized_pnl
+           FROM orders
+           WHERE account_id=?
+             AND status='filled'
+             AND side='sell'
+             AND realized_pnl IS NOT NULL"""
     args: list = [account_id]
     if date:
         q += " AND substr(filled_at,1,10)=?"
@@ -69,8 +73,7 @@ def get_pnl(
     realized = {"CNY": 0.0, "HKD": 0.0, "USD": 0.0}
     for r in rows:
         cur = CURRENCY_BY_MARKET[r["market"]]
-        sign = 1 if r["side"] == "sell" else -1
-        realized[cur] += sign * r["filled_qty"] * r["filled_price"] - r["fee"]
+        realized[cur] += r["realized_pnl"]
 
     pm = price_map or {}
     unrealized = {"CNY": 0.0, "HKD": 0.0, "USD": 0.0}
