@@ -116,6 +116,7 @@ def place_order(
 
     if should_fill:
         fee = calc_fee(market=market, side=side, qty=qty, price=fill_price)
+        realized_pnl = None
         if side == "buy":
             cost = qty * fill_price + fee
             if get_cash(conn, account_id)[currency] < cost:
@@ -127,6 +128,8 @@ def place_order(
                 avail = 0 if row is None else row["available_qty"]
                 return {"ok": False, "error_code": "INSUFFICIENT_POSITION",
                         "message": f"available={avail}, wanted={qty}"}
+            # Capture avg_cost BEFORE the position is mutated.
+            realized_pnl = (fill_price - row["avg_cost"]) * qty - fee
 
         settle_date = None
         if market == "CN" and side == "buy":
@@ -134,10 +137,10 @@ def place_order(
         cur = conn.execute(
             """INSERT INTO orders (account_id, symbol, market, side, order_type,
                 qty, price, ref_price, status, filled_price, filled_qty, fee,
-                submitted_at, filled_at, settle_date)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                submitted_at, filled_at, settle_date, realized_pnl)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (account_id, symbol, market, side, order_type, qty, price, ref_price,
-             "filled", fill_price, qty, fee, now_iso, now_iso, settle_date),
+             "filled", fill_price, qty, fee, now_iso, now_iso, settle_date, realized_pnl),
         )
         order_id = cur.lastrowid
 

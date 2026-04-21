@@ -69,3 +69,27 @@ def test_buy_fee_capitalized_weighted_average(conn):
                 side="buy", qty=100, order_type="market", ref_price=1400.0)
     pos = get_positions(conn, "neutral")
     assert pos[0]["avg_cost"] == pytest.approx(1450.3625)
+
+
+def test_sell_fill_writes_realized_pnl_immediate_path(conn):
+    """Buy 100@150 (US, fee=1.0) → avg_cost=150.01.
+    Sell 100@160 (US, fee=1.0) → realized=(160-150.01)*100 - 1.0 = 998.0."""
+    ensure_account(conn, "neutral")
+    place_order(conn, account_id="neutral", symbol="AAPL", market="US",
+                side="buy", qty=100, order_type="market", ref_price=150.0)
+    place_order(conn, account_id="neutral", symbol="AAPL", market="US",
+                side="sell", qty=100, order_type="market", ref_price=160.0)
+    sell_row = conn.execute(
+        "SELECT realized_pnl, side FROM orders WHERE side='sell' ORDER BY id DESC LIMIT 1"
+    ).fetchone()
+    assert sell_row["realized_pnl"] == pytest.approx(998.0)
+
+
+def test_buy_orders_have_null_realized_pnl(conn):
+    ensure_account(conn, "neutral")
+    place_order(conn, account_id="neutral", symbol="AAPL", market="US",
+                side="buy", qty=10, order_type="market", ref_price=150.0)
+    row = conn.execute(
+        "SELECT realized_pnl FROM orders WHERE side='buy' ORDER BY id DESC LIMIT 1"
+    ).fetchone()
+    assert row["realized_pnl"] is None
