@@ -44,7 +44,8 @@ CREATE TABLE IF NOT EXISTS orders (
     fee          REAL,
     submitted_at TEXT NOT NULL,
     filled_at    TEXT,
-    settle_date  TEXT
+    settle_date  TEXT,
+    realized_pnl REAL
 );
 
 CREATE TABLE IF NOT EXISTS trade_log (
@@ -58,8 +59,12 @@ CREATE TABLE IF NOT EXISTS trade_log (
 
 
 def init_schema(conn: sqlite3.Connection) -> None:
-    """Create tables if missing. Idempotent."""
+    """Create tables if missing, then run idempotent column migrations."""
     conn.executescript(SCHEMA)
+    # Idempotent migration: add realized_pnl to existing orders tables
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(orders)").fetchall()}
+    if "realized_pnl" not in cols:
+        conn.execute("ALTER TABLE orders ADD COLUMN realized_pnl REAL")
     conn.commit()
 
 
