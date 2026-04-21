@@ -98,7 +98,7 @@ def _sweep_pending(conn: sqlite3.Connection, account_id: str,
         if r["side"] == "buy":
             adjust_cash(conn, account_id, currency, -(r["qty"] * fill_price + fee))
             _upsert_position_buy(conn, account_id, r["symbol"], r["market"],
-                                 r["qty"], fill_price, currency, settle_date)
+                                 r["qty"], fill_price, currency, settle_date, fee=fee)
         else:
             adjust_cash(conn, account_id, currency, r["qty"] * fill_price - fee)
             _update_position_sell(conn, account_id, r["symbol"], r["market"], r["qty"])

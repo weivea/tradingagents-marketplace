@@ -33,20 +33,23 @@ def _get_position(conn: sqlite3.Connection, account_id: str, symbol: str, market
 def _upsert_position_buy(
     conn: sqlite3.Connection, account_id: str, symbol: str, market: str,
     qty: float, price: float, currency: str, settle_date: str | None,
+    fee: float = 0.0,
 ) -> None:
     row = _get_position(conn, account_id, symbol, market)
     available_delta = 0.0 if market == "CN" else qty
+    # Fee-capitalized avg_cost: cost basis includes commission/stamp.
     if row is None:
+        new_cost = (qty * price + fee) / qty
         conn.execute(
             """INSERT INTO positions
                (account_id, symbol, market, qty, available_qty, avg_cost, currency)
                VALUES (?, ?, ?, ?, ?, ?, ?)""",
-            (account_id, symbol, market, qty, available_delta, price, currency),
+            (account_id, symbol, market, qty, available_delta, new_cost, currency),
         )
     else:
         new_qty = row["qty"] + qty
         new_avail = row["available_qty"] + available_delta
-        new_cost = (row["qty"] * row["avg_cost"] + qty * price) / new_qty
+        new_cost = (row["qty"] * row["avg_cost"] + qty * price + fee) / new_qty
         conn.execute(
             "UPDATE positions SET qty=?, available_qty=?, avg_cost=? WHERE id=?",
             (new_qty, new_avail, new_cost, row["id"]),
@@ -141,7 +144,7 @@ def place_order(
         if side == "buy":
             adjust_cash(conn, account_id, currency, -(qty * fill_price + fee))
             _upsert_position_buy(conn, account_id, symbol, market, qty, fill_price,
-                                 currency, settle_date)
+                                 currency, settle_date, fee=fee)
         else:
             adjust_cash(conn, account_id, currency, qty * fill_price - fee)
             _update_position_sell(conn, account_id, symbol, market, qty)

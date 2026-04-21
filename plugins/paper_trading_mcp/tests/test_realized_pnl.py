@@ -43,3 +43,29 @@ def test_fresh_schema_has_realized_pnl():
     cols = {r["name"] for r in c.execute("PRAGMA table_info(orders)").fetchall()}
     assert "realized_pnl" in cols
     c.close()
+
+
+from python.accounts import ensure_account
+from python.orders import place_order
+from python.portfolio import get_positions
+
+
+def test_buy_fee_capitalized_into_avg_cost(conn):
+    """Single buy 100 @ 1500 with fee 37.5 → avg_cost = 1500.375."""
+    ensure_account(conn, "neutral")
+    place_order(conn, account_id="neutral", symbol="600519", market="CN",
+                side="buy", qty=100, order_type="market", ref_price=1500.0)
+    pos = get_positions(conn, "neutral")
+    assert len(pos) == 1
+    assert pos[0]["avg_cost"] == pytest.approx(1500.375)
+
+
+def test_buy_fee_capitalized_weighted_average(conn):
+    """100@1500 fee=37.5, then 100@1400 fee=35.0 → avg_cost = 1450.3625."""
+    ensure_account(conn, "neutral")
+    place_order(conn, account_id="neutral", symbol="600519", market="CN",
+                side="buy", qty=100, order_type="market", ref_price=1500.0)
+    place_order(conn, account_id="neutral", symbol="600519", market="CN",
+                side="buy", qty=100, order_type="market", ref_price=1400.0)
+    pos = get_positions(conn, "neutral")
+    assert pos[0]["avg_cost"] == pytest.approx(1450.3625)

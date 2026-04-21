@@ -20,7 +20,7 @@ def test_positions_after_buy(conn):
     assert len(pos) == 1
     assert pos[0]["symbol"] == "AAPL"
     assert pos[0]["qty"] == 100
-    assert pos[0]["avg_cost"] == 150.0
+    assert pos[0]["avg_cost"] == pytest.approx(150.01)  # fee-capitalized: (100*150 + 1)/100
 
 
 def test_portfolio_with_price_map(conn):
@@ -68,4 +68,4 @@ def test_pnl_unrealized_from_price_map(conn):
     place_order(conn, account_id="aggressive", symbol="AAPL", market="US",
                 side="buy", qty=100, order_type="market", ref_price=150.0)
     pnl = get_pnl(conn, "aggressive", price_map={"AAPL": 160.0})
-    assert pnl["unrealized_usd"] == pytest.approx(1000.0)
+    assert pnl["unrealized_usd"] == pytest.approx(999.0)  # (160-150.01)*100
