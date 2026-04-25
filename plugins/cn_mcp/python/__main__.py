@@ -104,6 +104,20 @@ def cmd_hk_stock_connect(args: argparse.Namespace) -> None:
     _dump(result)
 
 
+def cmd_cn_stock_quote(args: argparse.Namespace) -> None:
+    from .quote import get_cn_stock_quote
+
+    result = get_cn_stock_quote(args.symbol)
+    _dump(result)
+
+
+def cmd_hk_stock_quote(args: argparse.Namespace) -> None:
+    from .quote import get_hk_stock_quote
+
+    result = get_hk_stock_quote(args.symbol)
+    _dump(result)
+
+
 def cmd_hk_hot_rank(args: argparse.Namespace) -> None:
     from .hk_hot_rank import get_hk_hot_rank
 
@@ -159,6 +173,16 @@ def main() -> None:
     p_hk_connect = sub.add_parser("hk-stock-connect", help="HK Stock Connect holding data")
     p_hk_connect.add_argument("symbol", help="HK stock code (e.g. 00700)")
     p_hk_connect.set_defaults(func=cmd_hk_stock_connect)
+
+    # cn-stock-quote
+    p_cn_q = sub.add_parser("cn-stock-quote", help="A-share realtime quote + 5档")
+    p_cn_q.add_argument("symbol", help="Ticker symbol (e.g. 600519.SS or 600519)")
+    p_cn_q.set_defaults(func=cmd_cn_stock_quote)
+
+    # hk-stock-quote
+    p_hk_q = sub.add_parser("hk-stock-quote", help="HK near-realtime quote (1-min bar)")
+    p_hk_q.add_argument("symbol", help="HK stock code (e.g. 00700)")
+    p_hk_q.set_defaults(func=cmd_hk_stock_quote)
 
     # hk-hot-rank
     p_hk_rank = sub.add_parser("hk-hot-rank", help="HK stock hot rank")

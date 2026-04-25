@@ -9,6 +9,7 @@ import { getCnStockInfo } from "./tools/stock-info.js";
 import { getHkStockInfo } from "./tools/hk-stock-info.js";
 import { getHkStockConnect } from "./tools/hk-stock-connect.js";
 import { getHkHotRank } from "./tools/hk-hot-rank.js";
+import { getCnStockQuote, getHkStockQuote } from "./tools/quote.js";
 
 const server = new McpServer({
   name: "cn",
@@ -142,6 +143,34 @@ server.registerTool(
   },
   async (params) => ({
     content: [{ type: "text", text: await getHkHotRank(params) }],
+  })
+);
+
+// --- CN Stock Quote ---
+server.registerTool(
+  "get_cn_stock_quote",
+  {
+    description: "Get A-share realtime quote with 5-level order book (latest price, bid/ask 1-5, volume, turnover). Delay ~3s.",
+    inputSchema: {
+      symbol: z.string().describe("Ticker symbol (e.g. 600519.SS or 600519)"),
+    },
+  },
+  async (params) => ({
+    content: [{ type: "text", text: await getCnStockQuote(params) }],
+  })
+);
+
+// --- HK Stock Quote ---
+server.registerTool(
+  "get_hk_stock_quote",
+  {
+    description: "Get HK stock near-realtime quote via 1-min K-line last bar. Latest price + today's OHLC + volume. Delay ~0-60s. Note: 5-level order book requires paid LV1 feed.",
+    inputSchema: {
+      symbol: z.string().describe("HK stock code (e.g. 00700, 0700.HK, or 700)"),
+    },
+  },
+  async (params) => ({
+    content: [{ type: "text", text: await getHkStockQuote(params) }],
   })
 );
 
