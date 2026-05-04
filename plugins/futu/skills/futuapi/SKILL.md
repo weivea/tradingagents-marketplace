@@ -20,6 +20,16 @@ metadata:
 
 1. **OpenD** 必须运行且版本 >= **10.4.6408**，默认地址 `127.0.0.1:11111`（可通过环境变量配置）
 2. **Python SDK**：`futu-api` >= **10.4.6408**
+3. **本插件自带 venv**：插件目录下 `plugins/futu/.venv` 由 `uv` 管理。首次使用：
+   ```bash
+   cd plugins/futu && uv sync
+   ```
+   后续运行脚本必须使用插件的 venv，推荐通过包装命令（自动定位 venv）：
+   ```bash
+   plugins/futu/bin/futu-py plugins/futu/skills/futuapi/scripts/quote/get_snapshot.py HK.00700
+   ```
+   也可直接用 venv 的 python：`plugins/futu/.venv/bin/python <script>.py ...`
+4. **InitConnect RSA 加密**（可选但推荐跨网段）：OpenD 与客户端**共用同一份 PEM 私钥**（1024 位 PKCS#1），客户端通过环境变量 `FUTU_RSA_KEY_FILE` 指向私钥路径
 
 > 环境检查（SDK 版本、版本戳、OpenD 连通性）已内置到脚本的 `common.py` 中，首次运行自动完整检查，1 小时内后续脚本跳过。检查未通过时脚本会报错并提示运行 `/install-futu-opend`。
 
@@ -733,6 +743,7 @@ python skills/futuapi/scripts/subscribe/push_kline.py HK.00700 --ktype K_1M --du
 |------|------|--------|
 | `FUTU_OPEND_HOST` | OpenD 主机 | 127.0.0.1 |
 | `FUTU_OPEND_PORT` | OpenD 端口 | 11111 |
+| `FUTU_RSA_KEY_FILE` | RSA 私钥文件路径（PEM 格式，1024 位 PKCS#1）。OpenD 与客户端共用同一份私钥；未设置则禁用 InitConnect 加密 | （未设置） |
 | `FUTU_TRD_ENV` | 交易环境 | SIMULATE |
 | `FUTU_DEFAULT_MARKET` | 默认市场 | US |
 | ~~`FUTU_TRADE_PWD`~~ | ~~交易密码~~ | 已移除，需在 OpenD GUI 手动解锁 |

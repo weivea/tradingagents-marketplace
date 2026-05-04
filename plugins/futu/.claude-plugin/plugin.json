@@ -1,0 +1,8 @@
+{
+  "name": "futu",
+  "description": "Futu OpenAPI assistant skill — quotes, K-lines, snapshots, order book, options chain, place/modify/cancel orders, portfolio & account queries, realtime push subscriptions via the Futu OpenD Python SDK",
+  "version": "0.1.1",
+  "author": {
+    "name": "TauricResearch"
+  }
+}

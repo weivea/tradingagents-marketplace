@@ -39,4 +39,11 @@ gen-video/output/*.mp4
 gen-video/output/*.srt
 plugins/gv/gen-video/temp
 .worktrees/
+
+# Futu RSA keys (never commit private keys; .pub is also user-specific)
 *.pub
+plugins/futu/futu_id_rsa
+plugins/futu/futu_id_rsa.pub
+plugins/futu/futu_id_rsa.pem
+futu/futu_id_rsa
+futu/futu_id_rsa.pub

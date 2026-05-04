@@ -26,6 +26,11 @@
       "name": "cn_mcp",
       "description": "MCP server providing 6 Chinese A-share data tools (news, dragon tiger list, shareholder changes, stock info) via AKShare for the TradingAgents framework",
       "source": "./plugins/cn_mcp"
+    },
+    {
+      "name": "futu",
+      "description": "Futu OpenAPI assistant skill — quotes, K-lines, snapshots, order book, options chain, place/modify/cancel orders, portfolio & account queries, realtime push subscriptions via the Futu OpenD Python SDK",
+      "source": "./plugins/futu"
     }
   ]
 }

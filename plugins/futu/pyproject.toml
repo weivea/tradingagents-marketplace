@@ -1,0 +1,14 @@
+[project]
+name = "futu"
+version = "0.1.1"
+description = "Futu OpenAPI assistant skill — Python SDK environment for the futuapi skill"
+requires-python = ">=3.10"
+dependencies = [
+    "futu-api>=10.4.6408",
+]
+
+# Use Tsinghua PyPI mirror to avoid intermittent timeouts to pypi.org
+[[tool.uv.index]]
+name = "tsinghua"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true

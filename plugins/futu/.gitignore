@@ -1,0 +1,9 @@
+# Python venv (uv-managed)
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+
+# Futu RSA keys — never commit
+futu_id_rsa
+futu_id_rsa.pub

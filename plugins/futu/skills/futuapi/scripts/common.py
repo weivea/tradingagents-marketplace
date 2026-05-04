@@ -173,8 +173,36 @@ def _detect_ai_type_support():
         pass
 
 
+def _check_plugin_venv():
+    """提示用户使用插件自带的 venv（位于 plugins/futu/.venv），避免污染系统 Python。
+
+    仅警告不阻断：当当前解释器不在插件 venv 下、但 venv 已经存在时给出提示。
+    """
+    here = os.path.dirname(os.path.abspath(__file__))
+    # scripts/futuapi/scripts/common.py -> plugins/futu/
+    plugin_root = os.path.normpath(os.path.join(here, "..", "..", ".."))
+    venv_python = os.path.join(plugin_root, ".venv", "bin", "python")
+    if sys.platform == "win32":
+        venv_python = os.path.join(plugin_root, ".venv", "Scripts", "python.exe")
+    if not os.path.isfile(venv_python):
+        return  # venv 还没建，跳过提示（用户可能用系统 python）
+    try:
+        if os.path.samefile(sys.executable, venv_python):
+            return
+    except OSError:
+        pass
+    print(
+        f"[WARN] 当前 python 不是插件 venv（{sys.executable}）；"
+        f"建议使用：{venv_python} 或包装命令 `plugins/futu/bin/futu-py`",
+        file=sys.stderr,
+    )
+
+
 def ensure_futu_api():
     """环境检查（带缓存）：SDK 版本 + 版本戳 + OpenD 连通性。首次完整检查，TTL 内跳过。"""
+    # 0. venv 提示（不阻断，仅在缓存未命中时检查一次）
+    _check_plugin_venv()
+
     # 1. 缓存命中时仅做轻量 ai_type 支持检测
     if _env_check_is_cached():
         _detect_ai_type_support()
@@ -203,6 +231,22 @@ def ensure_futu_api():
     return True
 
 ensure_futu_api()
+
+# RSA 加密通信：若设置了 FUTU_RSA_KEY_FILE，则启用包加密
+# 客户端需配 PEM 公钥（首行 `-----BEGIN PUBLIC KEY-----`）
+# OpenD 端配对应 PEM 私钥（GUI "加密私钥" 输入框）
+_rsa_key = os.getenv("FUTU_RSA_KEY_FILE", "").strip()
+if _rsa_key:
+    _rsa_key = os.path.expanduser(_rsa_key)
+    if os.path.isfile(_rsa_key):
+        try:
+            from futu import SysConfig as _SysConfig
+            _SysConfig.enable_proto_encrypt(True)
+            _SysConfig.set_init_rsa_file(_rsa_key)
+        except Exception as _e:
+            print(f"[WARN] 启用 RSA 加密失败: {_e}", file=sys.stderr)
+    else:
+        print(f"[WARN] FUTU_RSA_KEY_FILE 指向的文件不存在: {_rsa_key}", file=sys.stderr)
 
 from futu import (
         OpenQuoteContext,

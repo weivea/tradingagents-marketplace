@@ -1,0 +1,20 @@
+#!/bin/sh
+# Wrapper that runs the given script with the plugin's own venv python.
+#
+# Usage:
+#   plugins/futu/bin/futu-py path/to/script.py [args...]
+#
+# Resolves the venv relative to this file's location, so it works regardless
+# of the current working directory.
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+VENV_PY="$SCRIPT_DIR/../.venv/bin/python"
+
+if [ ! -x "$VENV_PY" ]; then
+    echo "[futu-py] venv not found at $VENV_PY" >&2
+    echo "[futu-py] run: cd $(dirname "$SCRIPT_DIR") && uv sync" >&2
+    exit 1
+fi
+
+exec "$VENV_PY" "$@"
