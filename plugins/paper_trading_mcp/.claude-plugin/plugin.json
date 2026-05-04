@@ -1,8 +1,0 @@
-{
-  "name": "paper_trading_mcp",
-  "description": "MCP server providing multi-account simulated trading (CN/HK/US markets, T+1, limit/stop orders) for the TradingAgents paper-trading workflow",
-  "version": "0.1.0",
-  "author": {
-    "name": "TauricResearch"
-  }
-}

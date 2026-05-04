@@ -26,26 +26,6 @@
       "name": "cn_mcp",
       "description": "MCP server providing 6 Chinese A-share data tools (news, dragon tiger list, shareholder changes, stock info) via AKShare for the TradingAgents framework",
       "source": "./plugins/cn_mcp"
-    },
-    {
-      "name": "paper_trading_mcp",
-      "description": "MCP server providing multi-account simulated trading (CN/HK/US markets, T+1, limit/stop orders) for the TradingAgents paper-trading workflow",
-      "source": "./plugins/paper_trading_mcp"
-    },
-    {
-      "name": "trader_aggressive",
-      "description": "Aggressive paper-trading agent — chases momentum, tolerates drawdowns, favors market orders and high concentration. Trades via cn_mcp / t_mcp data and paper_trading_mcp execution.",
-      "source": "./plugins/trader_aggressive"
-    },
-    {
-      "name": "trader_conservative",
-      "description": "Conservative paper-trading agent — deep-value focus, keeps lots of cash, uses limit orders exclusively, tight stops. Trades via cn_mcp / t_mcp data and paper_trading_mcp execution.",
-      "source": "./plugins/trader_conservative"
-    },
-    {
-      "name": "trader_neutral",
-      "description": "Balanced paper-trading agent — combines fundamentals, technicals, news. Moderate position sizing, mix of market and limit orders. Also writes the daily discussion closing summary.",
-      "source": "./plugins/trader_neutral"
     }
   ]
 }
