@@ -20,6 +20,77 @@ from typing import Optional
 
 
 # ============================================================
+# .env 文件加载
+# ============================================================
+
+def _plugin_root() -> str:
+    """返回插件根目录（plugins/futu/）"""
+    here = os.path.dirname(os.path.abspath(__file__))
+    # scripts/futuapi/scripts/common.py -> plugins/futu/
+    return os.path.normpath(os.path.join(here, "..", "..", ".."))
+
+
+def _parse_env_file(path: str) -> dict:
+    """轻量解析 KEY=VALUE 格式的 .env 文件，跳过空行和 # 注释，去除值两端引号"""
+    result = {}
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            for raw in f:
+                line = raw.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if line.startswith("export "):
+                    line = line[len("export "):].lstrip()
+                if "=" not in line:
+                    continue
+                key, _, val = line.partition("=")
+                key = key.strip()
+                val = val.strip()
+                # 去除成对的引号
+                if len(val) >= 2 and val[0] == val[-1] and val[0] in ("'", '"'):
+                    val = val[1:-1]
+                if key:
+                    result[key] = val
+    except OSError:
+        pass
+    return result
+
+
+def _load_dotenv() -> None:
+    """加载 .env 文件到 os.environ。
+    查找顺序：
+        1. $FUTU_ENV_FILE 指向的文件（若设置）
+        2. <plugin_root>/.env
+
+    已存在的环境变量不会被覆盖（进程环境优先级最高）。
+    路径中的相对项以插件根目录为基准。
+    """
+    candidates = []
+    explicit = os.environ.get("FUTU_ENV_FILE", "").strip()
+    if explicit:
+        candidates.append(os.path.expanduser(explicit))
+    candidates.append(os.path.join(_plugin_root(), ".env"))
+
+    for path in candidates:
+        if not path or not os.path.isfile(path):
+            continue
+        for k, v in _parse_env_file(path).items():
+            if k not in os.environ:
+                # 路径类变量按插件根做相对解析
+                if k == "FUTU_RSA_KEY_FILE" and v:
+                    expanded = os.path.expanduser(v)
+                    if not os.path.isabs(expanded):
+                        expanded = os.path.normpath(os.path.join(_plugin_root(), expanded))
+                    os.environ[k] = expanded
+                else:
+                    os.environ[k] = v
+        break  # 仅加载第一份找到的
+
+
+_load_dotenv()
+
+
+# ============================================================
 # 环境变量配置
 # ============================================================
 

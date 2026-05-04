@@ -30,6 +30,14 @@ metadata:
    ```
    也可直接用 venv 的 python：`plugins/futu/.venv/bin/python <script>.py ...`
 4. **InitConnect RSA 加密**（可选但推荐跨网段）：OpenD 与客户端**共用同一份 PEM 私钥**（1024 位 PKCS#1），客户端通过环境变量 `FUTU_RSA_KEY_FILE` 指向私钥路径
+5. **`.env` 配置文件（推荐）**：插件根目录 `plugins/futu/.env` 集中管理 OpenD IP、端口、RSA 私钥路径等配置，脚本启动时自动加载。复制示例文件即可使用：
+   ```bash
+   cp plugins/futu/.env.example plugins/futu/.env
+   # 然后按需编辑 plugins/futu/.env
+   ```
+   - 已存在的进程环境变量优先级最高，不会被 `.env` 覆盖
+   - `FUTU_RSA_KEY_FILE` 支持 `~` 展开和相对路径（相对插件根目录）
+   - 可通过 `FUTU_ENV_FILE` 指向其他位置的 .env 文件
 
 > 环境检查（SDK 版本、版本戳、OpenD 连通性）已内置到脚本的 `common.py` 中，首次运行自动完整检查，1 小时内后续脚本跳过。检查未通过时脚本会报错并提示运行 `/install-futu-opend`。
 
@@ -739,11 +747,14 @@ python skills/futuapi/scripts/subscribe/push_kline.py HK.00700 --ktype K_1M --du
 
 ## 环境变量
 
+脚本启动时会自动从 `plugins/futu/.env` 加载配置（已存在的进程环境变量优先级最高）。可直接编辑 `.env` 文件，无需每次都 `export`。
+
 | 变量 | 说明 | 默认值 |
 |------|------|--------|
+| `FUTU_ENV_FILE` | 自定义 .env 文件路径（不设置则用 `<plugin_root>/.env`） | （未设置） |
 | `FUTU_OPEND_HOST` | OpenD 主机 | 127.0.0.1 |
 | `FUTU_OPEND_PORT` | OpenD 端口 | 11111 |
-| `FUTU_RSA_KEY_FILE` | RSA 私钥文件路径（PEM 格式，1024 位 PKCS#1）。OpenD 与客户端共用同一份私钥；未设置则禁用 InitConnect 加密 | （未设置） |
+| `FUTU_RSA_KEY_FILE` | RSA 私钥文件路径（PEM 格式，1024 位 PKCS#1）。OpenD 与客户端共用同一份私钥；未设置则禁用 InitConnect 加密。支持 `~` 展开和相对插件根目录的路径 | （未设置） |
 | `FUTU_TRD_ENV` | 交易环境 | SIMULATE |
 | `FUTU_DEFAULT_MARKET` | 默认市场 | US |
 | ~~`FUTU_TRADE_PWD`~~ | ~~交易密码~~ | 已移除，需在 OpenD GUI 手动解锁 |

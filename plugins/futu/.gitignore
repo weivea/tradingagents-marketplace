@@ -7,3 +7,8 @@ __pycache__/
 # Futu RSA keys — never commit
 futu_id_rsa
 futu_id_rsa.pub
+*.pem
+
+# Local env config — never commit
+.env
+.env.local
